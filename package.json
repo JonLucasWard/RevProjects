@@ -1,0 +1,17 @@
+{
+  "name": "firstproject",
+  "version": "1.0.0",
+  "description": "Create a reimbursement data-base that can communicate between data server and users.",
+  "main": "generalInfo.js",
+  "scripts": {
+    "start": "ts-node src/App.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jonathan Ward",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  }
+}

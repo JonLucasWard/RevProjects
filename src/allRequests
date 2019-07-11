@@ -1,0 +1,81 @@
+/**
+ * The following is to import required directories for the program to work.
+ * @express - I have no clue what this does yet!
+ * @bodyParser - Likewise, I don't understand.
+ */
+import express = require("express");
+import bodyParser = require("body-parser");
+
+/**
+ * The following is to establish the basic fundamentals of the application.
+ * @app - is constant, it's the thing we want to run and don't want people messing with
+ * @port - is where the app is to "listen" and receive user requests from
+ */
+const app = express();
+const port = 3000;
+
+/*
+ * Also no clue
+const userRouter = express.Router();
+app.use...
+^dead codes I dunno what they do, were in original examples but went largely unusued
+*/
+
+/**
+ * @app - refers to 'this' app and program
+ * @get - whenever a user calls the GET command through HTTP, this will run
+ * @'/user' - filepath reference, the filepath assumes you begin with the file the app is within
+ * This is the path people refer to when calling for files and commands
+ * @req - 'request', function triggers relative to the given request, passed in by the user/caller
+ * @rest - 'response', given by the server/app, instructions on what to do in response to a request
+ */
+
+//Get User info
+app.get('/user', (req, res) => { //use callback function as it is likely to be called by user
+    res.json('Getting User'); //send will send a message back to the user's JSON
+});
+/**
+ * @patch - a request to update data on the server
+ */
+//Update User Info
+app.patch('/user', (req, res) =>{  //'/user' doesn't actually need to exist for this call to still work
+    res.json('Updating User');
+});
+//Get User by ID
+app.get('/user/:id', (req, res) => { //:id will require an input value from the user
+    res.json('Retrieving User by Id');
+});
+//Add Reimbursement
+app.post('/reimbursements', (req, res) =>{
+    res.json({message: 'Submitting reimbursement.'});
+})
+//Update Reimbursement
+app.patch('/reimbursements', (req, res) => {
+    res.json({message: 'Updating reimbursements.'});
+});
+//Get status of reimbursement
+app.get('/reimbursement/status/:id', (req, res) => {
+    res.json({message: 'Getting reimbursement status.'});
+});
+//Get reimbursement users by ID
+app.get('/reimbursement/author/user/:id', (req, res) => {
+    res.json({message: 'Getting reimbursement users by ID.'});
+});
+//Put information to login and gain more credentials
+app.post('/login', (req, res) => {
+    res.json({message: 'Logging In'});
+});
+/**
+ * MUST GO LAST! Returns 404 errors if nothing else applies.
+ */
+app.use('', (req, res) => {
+    res.status(404).send('Sorry, webpage doesn\'t exist!')}
+);
+
+/**
+ * This basically turns the app on, telling it to 'listen' for instructions that go to the port
+ * Can be turned off with CTRL+C followed by typing 'Y' in the command prompt/terminal/powershell/etc
+ */
+app.listen(port, () => {
+    console.log('Express listening on port ' + port); //tells Developer whether or not it's on
+});

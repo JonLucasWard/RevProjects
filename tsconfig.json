@@ -1,0 +1,21 @@
+/* Mitch put his own file and information here, I am to copy it from slack */
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "target": "es6",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "noImplicitAny": false,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "dist",
+        "baseUrl": "src",
+        "rootDirs": [
+            "src"
+        ],
+    },
+    "include": [
+        "src/**/*", "app.ts",
+    ]
+}
