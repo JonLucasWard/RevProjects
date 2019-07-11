@@ -1,21 +1,22 @@
 import User from '../models/users'
-import db from '../models/db'
-let users = db.users;
+const userMap: Map<Number, User> = new Map();
 
 // similiar filter operation to matchUserAndPassword but with userId
-export function matchUserWithUserId(userId): User {
-    let matchUserWithId = (user) => (userId === String(user.userId))
-    let matchedUser: User = users.filter(matchUserWithId)[0];
-    return matchedUser
-}
-
-export function updateUser(user, body): User {
-    for (let key of Object.keys(body)) { 
-        user[key] = body[key]
+export function getUserId(id: number){
+    if(id != 0){
+        return userMap.get(id);
     }
-    return user
+    else {
+        return 'You are getting a userId!';
+    }
+
 }
 
-export function getAllUsers(): Array<User> {
-    return users;
+export function getAllUsers() {
+    return 'I should be a full array';
 }
+
+export function updateUser() {
+    return 'I should change the user data in the database!';
+}
+
