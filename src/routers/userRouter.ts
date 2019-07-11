@@ -1,42 +1,19 @@
 import express, { Request, Response } from 'express';
-import utilities from '../services/utilities';
 import * as usersService from '../services/usersService';
 
 
 const usersRouter = express.Router();
 
-// allow (only) finance manager to view current users and information 
-usersRouter.get('/', (req, res) => {
-    // pull cookie data with .cookies['cookie name']
-    let userCookie = req.cookies['identity']; // name of cookie with user details
-    if (utilities.trueIfFinanceManger(userCookie)) { 
-        let users = usersService.getAllUsers();
-        res.send(users) }
-    else { res.send("Invalid Credentials... you're not big DK!"); }
-})
+usersRouter.get('/:userId', (request: Request, response: Response) => {
+    response.status(201).json(usersService.getUserId(0));
+});
 
-// the information in the URL /stuff/:id gets stored in req.params['id']
-// this is routing and will try to match any request id to a database id
-usersRouter.get('/:id', (req, res) => {
-    let userCookie = req.cookies['identity']; // name of cookie with user details
-    if (!(utilities.trueIfFinanceManger(userCookie) || userCookie.userId === req.params['id'])) {
-        res.send("Invalid Credentials... you're not that user or big DK!");
-        return
-    }
-    let matchedUser = usersService.matchUserWithUserId(req.query['id']);
-    res.send(matchedUser)
-})
+usersRouter.patch('', (request: Request, response: Response) => {
+    response.status(201).json(usersService.updateUser());
+});
 
-// update sql database and return updated user information
-usersRouter.patch('/', (req, res) => {
-    if (!utilities.trueIfAdmin(req.cookies['identity'])) {
-        res.send('Invalid credentials, this incident will be reported');
-        return
-    }
-    let matchedUser = usersService.matchUserWithUserId(req.body['userId']);
-    let updatedUser = usersService.updateUser(matchedUser, req.body);
-    res.send(updatedUser);
-})
-
+usersRouter.get('', (request: Request, response: Response) =>{
+    response.status(201).json(usersService.getAllUsers());
+});
 
 export default usersRouter;

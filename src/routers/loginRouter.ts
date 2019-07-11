@@ -1,22 +1,10 @@
-import express from 'express';
-import utilities from '../services/utilities';
+import express, {Request, Response} from 'express';
+import * as userService from '../services/usersService';
 
-const loginRouter = express.Router()
-// when setting cookie information on a response .coookie(cookie info) must be called before .json(body info)
-loginRouter.post('/', (req, res) => {
-    let match = utilities.authenticateUser(req)
-    if (match) {
-        // create cookie for user identification
-        let userCookie = {"userId": match.userID, "password": match.passWord};
-        // set response cookie as def above and response body to user information
-        res.cookie('identity', userCookie);
-        res.json(utilities.authenticateUser(req));
-        // response ready to send
-        res.send();
-    }
-    else {
-        // something went wrong, and it's probably that the user information was invalid
-        res.status(400).send({error: `Invalid Credentials with attempts`})} 
+const loginRouter = express.Router();
+
+loginRouter.post('', (request: Request, response: Response) =>{
+    response.status(201).json('You are logging in!' + userService.getUserId(0));
 })
 
 export default loginRouter;
