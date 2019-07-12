@@ -1,18 +1,21 @@
-export default class User{
-    userID: number;
-    userName: string;
-    passWord: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-    constructor(userId, userName, passWord, firstName, lastName, email, role){
-        this.userID = userId;
-        this.userName = userName;
-        this.passWord = passWord;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-       this.role = role;
+export default class User {
+    public userID: number;
+    public userName: string;
+    public passWord: string;
+    public firstName: string;
+    public lastName: string;
+    public email: string;
+    public role: string;
+    constructor(obj) {
+        if (!obj) {
+            return;
+        }
+        this.userID = obj.userId;
+        this.userName = obj.userName;
+        this.passWord = obj.passWord;
+        this.firstName = obj.firstName;
+        this.lastName = obj.lastName;
+        this.email = obj.email;
+        this.role = obj.role;
     }
 }
