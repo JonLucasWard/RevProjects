@@ -6,7 +6,7 @@ export async function getUserId(id: number): Promise<User> {
     const result = await db.query(`SELECT id, username, password, firstname, lastname, email
     FROM users WHERE id = $1`, [id]);
     return new User(result.rows[0]);
-    }
+}
 
 export function getAllUsers() {
     return 'I should be a full array';
