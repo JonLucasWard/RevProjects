@@ -1,25 +1,24 @@
-export default class Reimbursement{
-    public reimbursementId: number;
-    public author: string;
-    public amount: number;
-    public dateSubmitted: Date;
-    public dateResolved: Date;
-    public type: string;
-    public description: string;
-    public resolver: string;
-    public status: string;
-    constructor(obj) {
-        if (!obj) {
-            return;
-        }
-        this.reimbursementId = obj.reimbursementId;
-        this.author = obj.author;
-        this.amount = obj.amount;
-        this.dateSubmitted = obj.dateSubmitted;
-        this.dateResolved = obj.dateResolved;
-        this.type = obj.type;
-        this.description = obj.description;
-        this.resolver = obj.resolver;
-        this.status = obj.status;
+export default class Reimbursement {
+    public id;
+    public author;
+    public amount;
+    public dateSubmitted;
+    public dateResolved;
+    public type;
+    public description;
+    public resolver;
+    public status;
+    constructor(reimId: number = null, author: number = null, amount: number = null,
+                dateSubmitted: Date = null, dateResolved: Date = null, type: number = null,
+                description: string = null, resolver: number = null, status: number = null) {
+        this.id = reimId;
+        this.author = author;
+        this.amount = amount;
+        this.dateSubmitted = dateSubmitted;
+        this.dateResolved = dateResolved;
+        this.type = type;
+        this.description = description;
+        this.resolver = resolver;
+        this.status = status;
     }
 }

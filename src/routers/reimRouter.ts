@@ -4,33 +4,22 @@ import * as reimbursementService from '../services/reimbursementService'; // cal
 
 const reimRouter = express.Router();
 
-reimRouter.get('/status/:statusId',
-   async (request: Request, response: Response) => {
-    const id = parseInt(request.params.id, 10);
-
-    const ticket: Reimbursement = await reimbursementService.getReimbursementById(id);
-    if (ticket.reimbursementId) {
-        response.status(200).json(ticket);
-    } else {
-        response.sendStatus(404);
-    }
+reimRouter.get('/status/:statusId', async (request: Request, response: Response) => {
+    const statusId = request.params && parseInt(request.params.statusId, 10);
+    const refunds = await reimbursementService.getReimbursementByStatus(statusId);
+    response.status(200).send(refunds);
 });
 
-reimRouter.get('/author/userId/:userId', (request: Request, response: Response) => {
-    response.status(201).json('You are getting a reimbursement by user!');
+reimRouter.get('/author/userId/:userId', async (request: Request, response: Response) => {
+    const userId = request.params && parseInt(request.params.userId, 10);
+    const refunds = await reimbursementService.getReimbursementByStatus(userId);
+    response.status(200).send(refunds);
 });
 
 reimRouter.post('',
-    (request: Request, response: Response) => {
-        const ticket = new Reimbursement(request.body);
-        reimbursementService.createReimbursement(ticket)
-            .then((rows) => {
-                if (rows.length > 0) {
-                    response.status(201).json(rows[0]);
-                } else {
-                    response.sendStatus(400);
-                }
-    });
+    async (request: Request, response: Response) => {
+        const newReim = await reimbursementService.addReimbursement(request.body);
+        response.json(newReim);
 });
 
 reimRouter.patch('',
@@ -39,13 +28,7 @@ reimRouter.patch('',
 
         const patchedReimbursement: Reimbursement = await reimbursementService.editReimbursement(patch);
 
-        if (patchedReimbursement.reimbursementId) {
-            response.json(patchedReimbursement);
-        } else {
-            response.json(404);
-        }
-
-        response.sendStatus(200);
+        response.json(patchedReimbursement);
 });
 
 export default reimRouter;

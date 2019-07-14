@@ -1,45 +1,52 @@
 import Reimbursement from '../models/reimbursements';
 import db from '../util/pg-connector';
 
-export function createReimbursement(reimbursement: Reimbursement):
-    Promise<Reimbursement[]> {
-        if (!reimbursement.author) {
-            console.warn('Author name required');
-        }
-        return db.query(`INSERT INTO reimbursements (author, amount, datesubmitted, dateresolved,
-            description, resolver, status, type)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, author, amount, datesubmitted, dateresolved,
-            description, resolver, status, type`,
-            [reimbursement.author, reimbursement.amount, reimbursement.dateSubmitted,
-                reimbursement.dateResolved, reimbursement.description, reimbursement.resolver, reimbursement.type])
-            .then((data) => {
-                return data.rows;
-            }).catch((err) => {
-                return [];
+export async function addReimbursement(body) {
+    return db.query(`INSERT INTO reimbursements (author, amount, datesubmitted, description, status, type)
+    VALUES ($1, $2, NOW(), $3, 1, $4) RETURNING *`,
+        [body.author, body.amount, body.description, body.type])
+        .then((data) => {
+            return data.rows;
         });
 }
 
-export async function editReimbursement(patch: Reimbursement) {
-        if (!patch.reimbursementId) {
-            return 0; // error
-        }
-        const currentState = await getReimbursementById(patch.reimbursementId);
-        const newState = {
-            ...currentState, ...patch,
-        };
-
-        const result = await db.query(`UPDATE reimbursements SET dateresolved = current.Time,
-        resolver = $1, status = $2 WHERE id = $3`,
-            [newState.resolver, newState.status, newState.reimbursementId]);
-        if (result.rowCount === 0) {
-            // throw error, 404
-        } else {
-            return result.rows[0];
-        }
+async function getReimbursementId(reimID): Promise<Reimbursement> {
+    const queryString = `select * from reimbursements where id = $1`;
+    const result = await db.query(queryString, [reimID]); // gives a LOT of information
+    const reimData = result.rows[0]; // The info we want is in the first "object" the above makes
+    const matchedReim = new Reimbursement();
+    for (let key of Object.keys(matchedReim)) {
+        matchedReim[key] = reimData[key.toLowerCase()];
+    }
+    return matchedReim;
 }
 
-export async function getReimbursementById(id: number): Promise<Reimbursement> {
-    const result = await db.query(`SELECT id, author, amount, datesubmitted, dateresolved, description, status, type
-        FROM reimbursements WHERE id = $1`, [id]);
-    return new Reimbursement(result.rows[0]);
+export async function editReimbursement(patch: Reimbursement) {
+    const currentState = await getReimbursementId(patch.id);
+    const newState = {
+        ...currentState, ...patch,
+    };
+
+    const result = await db.query(`UPDATE reimbursements SET dateresolved = NOW(), description = $1, resolver = $2,
+    status = $3 WHERE id = $4 RETURNING id, author, amount, datesubmitted, dateresolved, description,
+    resolver, status, type;`,
+            [newState.description, newState.resolver, newState.status, patch.id]);
+
+    return result.rows[0];
+}
+
+export async function getReimbursementByUserId(author) {
+    const queryString = `select * from reimbursements where author = $1 order by datesubmitted`;
+    const result = await db.query(queryString, [parseInt(author, 10)]);
+    const reimbursements = [];
+    for (let value of result.rows) { reimbursements.push(value); }
+    return reimbursements;
+}
+
+export async function getReimbursementByStatus(status) {
+    const queryString = `select * from reimbursements where status = $1 order by datesubmitted`;
+    const result = await db.query(queryString, [parseInt(status, 10)]);
+    const reimbursements = [];
+    for (let value of result.rows) { reimbursements.push(value); }
+    return reimbursements;
 }
