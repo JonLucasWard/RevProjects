@@ -5,10 +5,6 @@ import * as reimbursementService from '../services/reimbursementService'; // cal
 const reimRouter = express.Router();
 
 reimRouter.get('/status/:statusId', async (request: Request, response: Response) => {
-    if (!document.cookie) {
-        console.log("BEGONE!");
-        return;
-    }
     const statusId = request.params && parseInt(request.params.statusId, 10);
     const refunds = await reimbursementService.getReimbursementByStatus(statusId);
     response.status(200).send(refunds);
