@@ -1,7 +1,22 @@
 import User from '../models/users';
+import {Logger} from '../routers/loginRouter';
 import db from '../util/pg-connector';
 
 // similiar filter operation to matchUserAndPassword but with userId
+export async function userLogin(usrnam, passy) {
+    const queryString = `select * from users where username = $1 and password = $2`;
+    let answer = false;
+    const result = await db.query(queryString, [usrnam, passy]);
+    if (result.rows[0] === undefined) {
+        answer = false;
+    } else {
+    answer = true;
+    Logger.UserID = result.rows[0].id;
+    Logger.Role = result.rows[0].role;
+    }
+    return answer;
+}
+
 export async function getUserId(userID): Promise<User> {
     const queryString = `select * from users where id = $1`;
     const result = await db.query(queryString, [userID]); // gives a LOT of information
