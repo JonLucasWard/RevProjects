@@ -1,3 +1,6 @@
+/**
+ * Excess code, not actually used.
+ */
 export default class ReimbursementStatus {
     public statusId: number;
     public status: string;

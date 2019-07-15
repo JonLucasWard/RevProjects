@@ -1,3 +1,6 @@
+/**
+ * Excess code, not actually used.
+ */
 export default class ReimbursementType {
     public typeId: number;
     public type: string;

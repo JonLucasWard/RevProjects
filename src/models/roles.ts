@@ -1,3 +1,6 @@
+/**
+ * Excess code, not actually used.
+ */
 export default class Role {
     public roleId: number;
     public role: string;

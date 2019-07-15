@@ -1,3 +1,7 @@
+
+/**
+ * Refer to the users document, same idea here. We want to use this to build mimic reimbursements
+ */
 export default class Reimbursement {
     public id;
     public author;
