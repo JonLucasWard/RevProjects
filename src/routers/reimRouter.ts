@@ -1,25 +1,37 @@
+/**
+ * When a users comes in through the reimbursements path, they will have access to some functions
+ * given certain HTTP commands.
+ */
 import express, {Request, Response} from 'express';
 import Reimbursement from '../models/reimbursements';
-import {Logger} from '../routers/loginRouter';
+import {Logger} from '../routers/loginRouter'; // We need Logger to verify the user
 import * as reimbursementService from '../services/reimbursementService'; // call service file
 
-const reimRouter = express.Router();
+const reimRouter = express.Router(); // This creates a new instance of express unique to this path
 
+/**
+ * This function should give the user a list of reimbursements according to a given status.
+ * Can only be done by finance managers (role 2)
+ */
 reimRouter.get('/status/:statusId', async (request: Request, response: Response) => {
-    if (!Logger.Username) {
+    if (!Logger.Username) { // check if Logger.Username is an empty string
         response.json('Please login to access this information!');
         return;
-    } else if (Logger.Role !== 2) {
+    } else if (Logger.Role !== 2) { // check if user is not a Finance Manager
         response.status(401).json('You are not authorized for this operation!');
         return;
-    } else {
+    } else { // user is allow to use this function
     const statusId = request.params && parseInt(request.params.statusId, 10);
+    // if request.params doesn't work, use parseInt, pass the value to the next method
     const refunds = await reimbursementService.getReimbursementByStatus(statusId);
     response.status(200).send(refunds);
     return;
     }
 });
 
+/**
+ * As above, but by userId. And a user can access their own reimbursement history
+ */
 reimRouter.get('/author/userId/:userId', async (request: Request, response: Response) => {
     if (!Logger.Username) {
         response.json('Please login to access this information!');
@@ -34,6 +46,9 @@ reimRouter.get('/author/userId/:userId', async (request: Request, response: Resp
     }
 });
 
+/**
+ * Add a reimbursement
+ */
 reimRouter.post('',
     async (request: Request, response: Response) => {
     if (!Logger.Username) {
@@ -45,6 +60,9 @@ reimRouter.post('',
     response.status(202).json(newReim);
 });
 
+/**
+ * Update a reimbursement
+ */
 reimRouter.patch('',
     async (request: Request, response: Response) => {
         if (!Logger.Username) {
