@@ -5,6 +5,10 @@ import * as reimbursementService from '../services/reimbursementService'; // cal
 const reimRouter = express.Router();
 
 reimRouter.get('/status/:statusId', async (request: Request, response: Response) => {
+    if (!document.cookie) {
+        console.log("BEGONE!");
+        return;
+    }
     const statusId = request.params && parseInt(request.params.statusId, 10);
     const refunds = await reimbursementService.getReimbursementByStatus(statusId);
     response.status(200).send(refunds);
@@ -12,7 +16,7 @@ reimRouter.get('/status/:statusId', async (request: Request, response: Response)
 
 reimRouter.get('/author/userId/:userId', async (request: Request, response: Response) => {
     const userId = request.params && parseInt(request.params.userId, 10);
-    const refunds = await reimbursementService.getReimbursementByStatus(userId);
+    const refunds = await reimbursementService.getReimbursementByUserId(userId);
     response.status(200).send(refunds);
 });
 
