@@ -11,7 +11,7 @@ usersRouter.get('/:userId',
         response.json('Please login to access this information!');
         return;
     } else if (Logger.Role !== 2 && Logger.UserID !== parseInt(request.params.userId, 10)) {
-        response.json('You do not have authorization!');
+        response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
     const id = parseInt(request.params.userId, 10);
@@ -27,7 +27,7 @@ async (request: Request, response: Response) => {
         response.json('Please login to access this information!');
         return;
     } else if (Logger.Role !== 1) {
-        response.json('You do not have authorization!');
+        response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
     const patch: User = request.body;
@@ -44,7 +44,7 @@ usersRouter.get('', async (request: Request, response: Response) => {
         response.json('Please login to access this information!');
         return;
     } else if (Logger.Role !== 2) {
-        response.json('You do not have authorization!');
+        response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
     const users = await usersService.getAllUsers();

@@ -10,7 +10,7 @@ reimRouter.get('/status/:statusId', async (request: Request, response: Response)
         response.json('Please login to access this information!');
         return;
     } else if (Logger.Role !== 2) {
-        response.json('You do not have authorization!');
+        response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
     const statusId = request.params && parseInt(request.params.statusId, 10);
@@ -25,7 +25,7 @@ reimRouter.get('/author/userId/:userId', async (request: Request, response: Resp
         response.json('Please login to access this information!');
         return;
     } else if (Logger.Role !== 2 && Logger.UserID !== parseInt(request.params.userId, 10)) {
-        response.json('You do not have authorization!');
+        response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
     const userId = request.params && parseInt(request.params.userId, 10);
@@ -40,8 +40,9 @@ reimRouter.post('',
         response.json('Please login to access this information!');
         return;
     }
-    const newReim = await reimbursementService.addReimbursement(request.body);
-    response.json(newReim);
+    const newReim: Reimbursement = await reimbursementService.addReimbursement(request.body);
+    console.log(newReim);
+    response.status(202).json(newReim);
 });
 
 reimRouter.patch('',
@@ -50,7 +51,7 @@ reimRouter.patch('',
             response.json('Please login to access this information!');
             return;
         } else if (Logger.Role !== 2) {
-            response.json('You do not have authorization!');
+            response.status(401).json('You are not authorized for this operation!');
             return;
         } else {
         const patch: Reimbursement = request.body;

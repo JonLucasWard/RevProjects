@@ -1,4 +1,5 @@
 import express, {Request, Response} from 'express';
+import User from '../models/users';
 import * as usersService from '../services/usersService';
 
 const loginRouter = express.Router();
@@ -15,10 +16,11 @@ loginRouter.post('', async (request: Request, response: Response) => {
     if (valid) {
         Logger.Username = request.body.UserName;
         Logger.Password = request.body.Password;
-        response.json(`Welcome ${Logger.Username}!
-        your role is ${Logger.Role} and ID is ${Logger.UserID}`);
+        const user: User = await usersService.getUserId(Logger.UserID);
+        console.log(user);
+        response.json(user);
     } else {
-        response.json(`Incorrect login!`);
+        response.status(400).json('Invalid Credentials');
     }
 });
 
