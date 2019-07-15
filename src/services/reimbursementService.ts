@@ -2,12 +2,15 @@ import Reimbursement from '../models/reimbursements';
 import db from '../util/pg-connector';
 
 export async function addReimbursement(body) {
-    return db.query(`INSERT INTO reimbursements (author, amount, datesubmitted, description, status, type)
+    const result = await db.query(`INSERT INTO reimbursements (author, amount, datesubmitted, description, status, type)
     VALUES ($1, $2, NOW(), $3, 1, $4) RETURNING *`,
-        [body.author, body.amount, body.description, body.type])
-        .then((data) => {
-            return data.rows;
-        });
+        [body.author, body.amount, body.description, body.type]);
+    const reimData = result.rows[0];
+    const reimbursement = new Reimbursement();
+    for (let key of Object.keys(reimbursement)){ 
+        reimbursement[key] = reimData[key.toLowerCase()]; }
+    console.log(reimbursement);
+    return reimbursement;
 }
 
 async function getReimbursementId(reimID): Promise<Reimbursement> {
