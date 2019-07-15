@@ -1,5 +1,5 @@
 import express, {Request, Response} from 'express';
-import * as userService from '../services/usersService';
+import * as usersService from '../services/usersService';
 
 const loginRouter = express.Router();
 
@@ -11,7 +11,7 @@ export let Logger = {
 };
 
 loginRouter.post('', async (request: Request, response: Response) => {
-    const valid: boolean = await userService.userLogin(request.body.UserName, request.body.Password);
+    const valid: boolean = await usersService.userLogin(request.body.UserName, request.body.Password);
     if (valid) {
         Logger.Username = request.body.UserName;
         Logger.Password = request.body.Password;

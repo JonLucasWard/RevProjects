@@ -10,7 +10,10 @@ usersRouter.get('/:userId',
     if (!Logger.Username) {
         response.json('Please login to access this information!');
         return;
-    }
+    } else if (Logger.Role !== 2 && Logger.UserID !== parseInt(request.params.userId, 10)) {
+        response.json('You do not have authorization!');
+        return;
+    } else {
     const id = parseInt(request.params.userId, 10);
     const user: User = await usersService.getUserId(id);
 
