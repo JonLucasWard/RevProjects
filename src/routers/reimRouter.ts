@@ -12,7 +12,7 @@ reimRouter.get('/status/:statusId', async (request: Request, response: Response)
 
 reimRouter.get('/author/userId/:userId', async (request: Request, response: Response) => {
     const userId = request.params && parseInt(request.params.userId, 10);
-    const refunds = await reimbursementService.getReimbursementByStatus(userId);
+    const refunds = await reimbursementService.getReimbursementByUserId(userId);
     response.status(200).send(refunds);
 });
 
