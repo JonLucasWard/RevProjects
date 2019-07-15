@@ -18,6 +18,7 @@ usersRouter.get('/:userId',
     const user: User = await usersService.getUserId(id);
 
     response.json(user);
+    }
 });
 
 usersRouter.patch('',
