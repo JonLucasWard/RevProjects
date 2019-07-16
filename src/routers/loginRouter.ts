@@ -9,6 +9,8 @@ import express, {Request, Response} from 'express';
 import User from '../models/users'; // The User model is necessary to return the user's login data back
 import * as usersService from '../services/usersService'; // As per above
 
+const {sha256} = require('crypto-hash'); /* Turn passwords into human unreadable hashes, no password
+is actually saved or used in its 'normal' form */
 const loginRouter = express.Router(); // This creates a new instance of express unique to the login path
 
 /**
@@ -38,6 +40,8 @@ export let Logger = {
  * documentation for more on that)
  */
 loginRouter.post('', async (request: Request, response: Response) => {
+    request.body.Password = await sha256(request.body.Password); /* Immediately turn the entry into a hash
+        That's all the hashing we do here. Just this one line. Amazing ain't it? */
     // We want the variable "valid" to be given type boolean, it should return true if the user logged in correctly
     const valid: boolean = await usersService.userLogin(request.body.UserName, request.body.Password);
     // request.body.propertyName, this clues us on how the request is structured. Request -> body -> property names
