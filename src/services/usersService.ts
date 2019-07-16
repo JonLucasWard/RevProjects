@@ -60,6 +60,18 @@ export async function getUserId(userID): Promise<User> {
     return matchedUser; // return the completed User object to be read
 }
 
+export async function getUserByUName(usn): Promise<User> {
+    const queryString = `select * from users where username = $1`;
+    const result = await db.query(queryString, [usn]);
+    const userData = result.rows[0]; // userData now contains only the relevant information we want, however
+    // it still isn't matched properly
+    const matchedUser = new User(); // We will pass userData into this
+    for (let key of Object.keys(matchedUser)) { // Object.keys(objectName) treats the passed object's keys as an array
+        matchedUser[key] = userData[key.toLowerCase()]; // toLowerCase just in case there are differences in field names
+    }
+    return matchedUser; // return the completed User object to be read
+}
+
 /**
  * The following function simply returns a list of all users from the database
  * @async asynchronous function, whenever you see this, it is the code sending a function to an outside

@@ -13,6 +13,9 @@ const {sha256} = require('crypto-hash'); /* Turn passwords into human unreadable
 is actually saved or used in its 'normal' form */
 const loginRouter = express.Router(); // This creates a new instance of express unique to the login path
 
+/* EXPERIMENTAL!!!! */
+const jwt = require('jsonwebtoken');
+
 /**
  * The key to the login so to say. The Logger object will store the user's password, username, role, and
  * ID so that other functions can refer to this information and decide if the user can access certain 
@@ -46,13 +49,33 @@ loginRouter.post('', async (request: Request, response: Response) => {
     const valid: boolean = await usersService.userLogin(request.body.UserName, request.body.Password);
     // request.body.propertyName, this clues us on how the request is structured. Request -> body -> property names
     if (valid) { // if true...
-        Logger.Username = request.body.UserName; // set Logger.Username to what the user put it, we know it's correct
-        Logger.Password = request.body.Password; // as above
-        const user: User = await usersService.getUserId(Logger.UserID); // Run the get id command using Logger's Id
-        response.json(user); // response with the user's information
+        let user: User = await usersService.getUserByUName(request.body.UserName);
+        user = JSON.parse(JSON.stringify(user));
+        jwt.sign(user, 'privatekey', {expiresIn: '1h' }, (err, token) => {
+            if (err) { console.log(err); }
+            response.send(token);
+        });
     } else {
         response.status(400).json('Invalid Credentials'); // give an error if the user gave a bad login
     }
+});
+
+export function tokenChecker(req1, req2) {
+        console.log('Am I even running?');
+        let authorization = req2;
+        console.log(authorization);
+        let decoded;
+        decoded = jwt.verify(authorization, 'private key');
+        console.log(`let's decode!
+        ${decoded}`);
+        return decoded;
+}
+
+loginRouter.get('', async (request: Request, response: Response) => {
+    let reqHead = request.headers;
+    let reqAuth = request.headers.authorization;
+    let revivedUser: User = await tokenChecker(reqHead, reqAuth);
+    response.send(revivedUser);
 });
 
 export default loginRouter;
