@@ -45,7 +45,7 @@ export async function userLogin(usrnam, passy) {
  * @param userID passed in from the app user's Json, should equal a user's ID in the database
  */
 export async function getUserId(userID): Promise<User> {
-    const queryString = `select * from users where id = $1`;
+    const queryString = `select id, username, firstname, lastname, email, role from users where id = $1`;
     const result = await db.query(queryString, [userID]);
     const userData = result.rows[0]; // userData now contains only the relevant information we want, however
     // it still isn't matched properly
@@ -69,7 +69,7 @@ export async function getUserId(userID): Promise<User> {
  * @await the code will not continue until the function after await comes back with a response
  */
 export async function getAllUsers() {
-    const queryString = `select * from users`; // SQL code to be sent to the database
+    const queryString = `select id, username, firstname, lastname, email, role from users`; // SQL code to be sent to the database
     const usersResults = await db.query(queryString); // send the code.
     const usersData = usersResults.rows; // making a copy of the desired structure from the database
     // the DB will give more information than we actually need, what we want is in .rows
@@ -84,15 +84,32 @@ export async function getAllUsers() {
     return users;
 }
 
+// The following is for the upd8 function to work properly, as it needs the password field
+export async function getUserPassId(userID): Promise<User> {
+    const queryString = `select * from users where id = $1`;
+    const result = await db.query(queryString, [userID]);
+    const userData = result.rows[0]; // userData now contains only the relevant information we want, however
+    // it still isn't matched properly
+    const matchedUser = new User(); // We will pass userData into this
+    /**
+     * this for loop will go over each key of the matchedUser object
+     * Then it grabs the value matching each key of the User object, to an equivalent index value from userData
+     */
+    for (let key of Object.keys(matchedUser)) { // Object.keys(objectName) treats the passed object's keys as an array
+        matchedUser[key] = userData[key.toLowerCase()]; // toLowerCase just in case there are differences in field names
+    }
+    return matchedUser; // return the completed User object to be read
+}
+
 /**
  * The following function is meant to pass in user-like data into the database, so that it can update
  * a user's information to reflect the new data, but not change ANYTHING else.
  * @param patch is passed in information, meant to have the data structure of a User
  */
 export async function updateUser(patch: User) {
-    const currentState = await getUserId(patch.iD); // The passed in data will have the ID of the desired user
+    const currentState = await getUserPassId(patch.iD); // The passed in data will have the ID of the desired user
     // it also calls the previously defined getUserId function, which returns a full user.
-    /** 
+    /**
      * The next object will create a new object with BOTH the original user, and our updates.
      * @currentState - old user information
      * @patch - new user information, will override old versions of the information.
@@ -102,7 +119,7 @@ export async function updateUser(patch: User) {
     };
 
     const result = await db.query(`UPDATE users SET username = $1, password = $2, firstname = $3, lastname = $4,
-     email = $5 WHERE id = $6 RETURNING username, firstname, lastname, email;`,
+    email = $5 WHERE id = $6 RETURNING username, firstname, lastname, email;`,
             [newState.userName, newState.passWord, newState.firstName, newState.lastName, newState.email, patch.iD]);
     // The above, MASSIVE query, basically tries to update everything that is reasonable to update using 
     // the newState object

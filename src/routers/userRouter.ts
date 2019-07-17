@@ -45,14 +45,14 @@ async (request: Request, response: Response) => {
         response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
-    try{
+    try {
         const patch: User = request.body;
         const patchedInv: User = await usersService.updateUser(patch);
         response.json(patchedInv);
         return;
     } catch {
         response.status(400).json('Bad inputs');
-    }
+     }
     }
 });
 
