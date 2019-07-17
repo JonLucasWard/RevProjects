@@ -43,15 +43,19 @@ loginRouter.post('', async (request: Request, response: Response) => {
     request.body.Password = await sha256(request.body.Password); /* Immediately turn the entry into a hash
         That's all the hashing we do here. Just this one line. Amazing ain't it? */
     // We want the variable "valid" to be given type boolean, it should return true if the user logged in correctly
-    const valid: boolean = await usersService.userLogin(request.body.UserName, request.body.Password);
-    // request.body.propertyName, this clues us on how the request is structured. Request -> body -> property names
-    if (valid) { // if true...
-        Logger.Username = request.body.UserName; // set Logger.Username to what the user put it, we know it's correct
-        Logger.Password = request.body.Password; // as above
-        const user: User = await usersService.getUserId(Logger.UserID); // Run the get id command using Logger's Id
-        response.json(user); // response with the user's information
-    } else {
-        response.status(400).json('Invalid Credentials'); // give an error if the user gave a bad login
+    try { 
+        const valid: boolean = await usersService.userLogin(request.body.UserName, request.body.Password);
+        // request.body.propertyName, this clues us on how the request is structured. Request -> body -> property names
+        if (valid) { // if true...
+           Logger.Username = request.body.UserName; // set Logger.Username to what the user put it, we know it's correct
+           Logger.Password = request.body.Password; // as above
+           const user: User = await usersService.getUserId(Logger.UserID); // Run the get id command using Logger's Id
+           response.json(user); // response with the user's information
+        } else {
+           response.status(400).json('Invalid Credentials'); // give an error if the user gave a bad login
+       }
+    } catch(error) {
+        response.status(400).json('Improper input.');
     }
 });
 

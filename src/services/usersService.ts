@@ -102,7 +102,7 @@ export async function updateUser(patch: User) {
     };
 
     const result = await db.query(`UPDATE users SET username = $1, password = $2, firstname = $3, lastname = $4,
-     email = $5 WHERE id = $6 RETURNING username, password, firstname, lastname, email;`,
+     email = $5 WHERE id = $6 RETURNING username, firstname, lastname, email;`,
             [newState.userName, newState.passWord, newState.firstName, newState.lastName, newState.email, patch.iD]);
     // The above, MASSIVE query, basically tries to update everything that is reasonable to update using 
     // the newState object
