@@ -1,42 +1,79 @@
+/**
+ * When a users comes in through the users path, they will have access to some functions
+ * given certain HTTP commands.
+ */
 import express, { Request, Response } from 'express';
-import utilities from '../services/utilities';
+import User from '../models/users';
+import {Logger} from '../routers/loginRouter';
 import * as usersService from '../services/usersService';
-
 
 const usersRouter = express.Router();
 
-// allow (only) finance manager to view current users and information 
-usersRouter.get('/', (req, res) => {
-    // pull cookie data with .cookies['cookie name']
-    let userCookie = req.cookies['identity']; // name of cookie with user details
-    if (utilities.trueIfFinanceManger(userCookie)) { 
-        let users = usersService.getAllUsers();
-        res.send(users) }
-    else { res.send("Invalid Credentials... you're not big DK!"); }
-})
-
-// the information in the URL /stuff/:id gets stored in req.params['id']
-// this is routing and will try to match any request id to a database id
-usersRouter.get('/:id', (req, res) => {
-    let userCookie = req.cookies['identity']; // name of cookie with user details
-    if (!(utilities.trueIfFinanceManger(userCookie) || userCookie.userId === req.params['id'])) {
-        res.send("Invalid Credentials... you're not that user or big DK!");
-        return
+/**
+ * allow a user to get another user's info. A user is allowed to get their own information
+ */
+usersRouter.get('/:userId',
+    async (request: Request, response: Response) => {
+    if (!Logger.Username) {
+        response.json('Please login to access this information!');
+        return;
+    } else if (Logger.Role !== 2 && Logger.UserID !== parseInt(request.params.userId, 10)) {
+        response.status(401).json('You are not authorized for this operation!');
+        return;
+    } else {
+        try {
+            const id = parseInt(request.params.userId, 10);
+            const user: User = await usersService.getUserId(id);
+            response.json(user);
+            return;
+        } catch (error) {
+            response.status(400).json('Bad inputs');
+            return;
+        }
     }
-    let matchedUser = usersService.matchUserWithUserId(req.query['id']);
-    res.send(matchedUser)
-})
+});
 
-// update sql database and return updated user information
-usersRouter.patch('/', (req, res) => {
-    if (!utilities.trueIfAdmin(req.cookies['identity'])) {
-        res.send('Invalid credentials, this incident will be reported');
-        return
+/**
+ * Change a user's information in the database and return it. Should only be possible to admins (role 1)
+ */
+usersRouter.patch('',
+async (request: Request, response: Response) => {
+    if (!Logger.Username) {
+        response.json('Please login to access this information!');
+        return;
+    } else if (Logger.Role !== 1) {
+        response.status(401).json('You are not authorized for this operation!');
+        return;
+    } else {
+    try {
+        const patch: User = request.body;
+        const patchedInv: User = await usersService.updateUser(patch);
+        response.json(patchedInv);
+        return;
+    } catch {
+        response.status(400).json('Bad inputs');
+     }
     }
-    let matchedUser = usersService.matchUserWithUserId(req.body['userId']);
-    let updatedUser = usersService.updateUser(matchedUser, req.body);
-    res.send(updatedUser);
-})
+});
 
+/**
+ * Get a list of all users, should only be done by finance managers
+ */
+usersRouter.get('', async (request: Request, response: Response) => {
+    if (!Logger.Username) {
+        response.json('Please login to access this information!');
+        return;
+    } else if (Logger.Role !== 2) {
+        response.status(401).json('You are not authorized for this operation!');
+        return;
+    } else {
+    try {
+        const users = await usersService.getAllUsers();
+        response.send(users);
+    } catch(error) {
+        response.status(400).json('Bad inputs');
+    }
+    }
+});
 
 export default usersRouter;

@@ -1,8 +1,14 @@
-export default class reimbursementType{
-    typeId: number;
-    type: string;
-    constructor(typeId, type){
-        this.typeId = typeId;
-        this.type = type;
+/**
+ * Excess code, not actually used.
+ */
+export default class ReimbursementType {
+    public typeId: number;
+    public type: string;
+    constructor(obj) {
+        if (!obj) {
+            return;
+        }
+        this.typeId = obj.typeId;
+        this.type = obj.type;
     }
 }
