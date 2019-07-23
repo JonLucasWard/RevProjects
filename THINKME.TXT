@@ -1,0 +1,15 @@
+Being able to search for a range of dates in a reimbursement request is simply a matter of an SQL command
+with more restrictions such as "where dateSubmitted is BETWEEN $1 and $2" or some equivalent.
+
+Paging and Sorting endpoints happens somewhat automatically with the user needing to put in a parameter
+(this automatically updates the URL and tells the server side to make the change). Further pagination
+is simply a use of the limit with any search.
+   Although, further edits may be needed to allow the user to travel between pages of data displayed this way.
+BUT, our small data set doesn't need this functionality yet. And adding it is of little benefit currently.
+
+Password hashing was literally a 2 lines.
+
+JSON web tokens instead of session storage...
+
+Submitting receipts... AWS S3 buckets and AWS Access Keys...
+
