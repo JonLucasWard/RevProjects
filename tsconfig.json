@@ -1,4 +1,3 @@
-/* Mitch put his own file and information here, I am to copy it from slack */
 {
     "compilerOptions": {
         "module": "commonjs",
@@ -16,6 +15,6 @@
         ],
     },
     "include": [
-        "src/**/*", "app.ts",
+        "src/**/*",
     ]
 }

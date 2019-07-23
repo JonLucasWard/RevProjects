@@ -1,0 +1,111 @@
+html {
+	position: absolute; /* needed to fill whole window and allow other elements to be relative*/
+	background-color: black; /* set area to this color, useful for all elements*/
+	height: 100%; /* needed to set html to take full width*/
+	width: 100%; /* needed to set html to take full height*/
+}
+header{ /*top page structure*/
+	position: relative;
+	background-color: red;
+	clear: both; /*make it so this area always takes full width of window*/
+	margin: 25px; /*distance between object and other objects*/
+	border: 2px solid #000000; /*width, type, color*/
+	padding: 25px; /*distance between interior to border*/
+	box-shadow: 2px 4px 6px 8px; /*color shadow beneath this section, top-right-bottom-left*/
+}
+body{ /*center page structure*/
+	background-color: yellow;
+	height: 100%;
+	width: 100%;
+	margin: 25px;
+	border: 2px dashed #FFFFFF;
+	padding: 25px;
+	box-shadow: 2px 4px 6px 8px;
+}
+footer{ /*bottom page structure*/
+	background-color: tomato;
+	clear: both;
+	margin: 25px;
+	border: 2px dotted #000000;
+	padding: 25px;
+	box-shadow: 2px 4px 6px 8px;
+}
+div{ /*general page structure*/
+	background-color: pink;
+	float: left;
+	margin: 25px;
+	border: 2px double #FFFFFF;
+	padding: 25px;
+	overflow: auto; /*if too much stuff in a container, creates scrolls*/
+	align-content: center; /*move it to center of container*/
+	box-shadow: 2px 4px 6px 8px;
+}
+h1, h2, h3, h4{ /*marketing tags for text*/
+	background-color: indigo;
+	margin: 25px;
+	border: 2px groove #000000;
+	padding: 25px;
+	overflow: auto;
+	align-content: center;
+	text-align: center; /*centers any text inside this thing*/
+	text-shadow: 5px -5px 3px #FFFFFF; /*as per box shadow, y axis, x axis, color*/
+}
+p{ /*text structure*/
+	background-color: white;
+	padding: 25px;
+	overflow: auto;
+	align-content: center;
+	text-align: center;
+	text-shadow: 5px -5px 3px #FFFFFF;
+}
+input{ /*can be a lot of things, check document details*/
+	background-color: grey;
+	margin: 25px;
+	border: 2px ridge #000000;
+	padding: 25px;
+	align-content: center;
+	box-shadow: 2px 4px 6px 8px;
+}
+form{ /*structure for many inputs*/
+	background-color: gold;
+	float: left;
+	margin: 25px;
+	border: 2px inlet #FFFFFF;
+	padding: 25px;
+	align-content: center;
+	box-shadow: 2px 4px 6px 8px;
+}
+button{ /*various buttons*/
+	background-color: forest;
+	margin: 25px;
+	border: 2px outlet #000000;
+	padding: 25px;
+	box-shadow: 2px 4px 6px 8px;
+}
+iframe{ /*makes a mini window*/
+	background-color: lemonchiffon;
+	float: left;
+	margin: 25px;
+	border: 2px solid #FFFFFF;
+	padding: 25px;
+	align-content: center;
+	box-shadow: 2px 4px 6px 8px;
+}
+q{ /*Quote Structure*/
+	background-color: lime;
+	margin: 25px;
+	border: 2px dashed #000000;
+	padding: 25px;
+	align-content: center;
+	text-align: center;
+	text-shadow: 5px -5px 3px #FFFFFF;
+}
+span{ /*like div but only organizes by in-line*/
+	background-color: green;
+	margin: 25px;
+	border: 2px dotted #FFFFFF;
+	padding: 25px;
+	align-content: center;
+	text-align: center;
+	text-shadow: 5px -5px 3px #FFFFFF;
+}
