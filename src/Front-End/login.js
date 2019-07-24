@@ -20,6 +20,7 @@ function loginMaker() {
     }).then((res) => res.json())
       .then(function (data) {
         clientInfo = data;
+        console.log(data);
         while (display.firstChild) {
           display.removeChild(display.firstChild);
         }
@@ -36,52 +37,7 @@ function loginMaker() {
         }
       })
       .catch((err) => console.log(err));
-
-    /*.then(function (data) {
-        
-        console.log(body);
-        
-        console.log("Request success: ", data);
-      })
-      .catch(function (error) {
-        console.log("Request failure: ", error);
-        console.log("Bad Input");
-        while (display.firstChild) {
-          display.removeChild(display.firstChild);
-        }
-        var reject = document.createElement("p");
-        reject.innerText = "Bad Input.";
-        display.appendChild(reject);
-      });*/
   });
-  /*switch (usrnam) {
-    case "User":
-      while (display.firstChild) {
-          display.removeChild(display.firstChild);
-        }
-        userViewMaker();
-        break;
-    case "FM":
-      while (display.firstChild) {
-        display.removeChild(display.firstChild);
-      }
-      FMViewMaker();
-      break;
-    case "Admin":
-      while (display.firstChild) {
-        display.removeChild(display.firstChild);
-      }
-      adminViewMaker();
-      break;
-    default:
-      console.log("Bad Input");
-      while (display.firstChild) {
-        display.removeChild(display.firstChild);
-      }
-      var reject = document.createElement("p");
-      reject.innerText = "Bad Input.";
-      display.appendChild(reject);
-      break;*/
 }
 
 loginMaker();
@@ -148,9 +104,32 @@ function userViewMaker() {
     while (main.firstChild) {
       main.removeChild(main.firstChild);
     }
+    var url = new URL('http://localhost:3000/users/');
+    var url = url + clientInfo.iD;
+
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    }).then((res) => res.json())
+      .then(function (data) {
+        while (display.firstChild) {
+          display.removeChild(display.firstChild);
+        }
+        /*for (var key in data) {
+          console.log(key);
+        }*/ // can use this code to view keys in ANY object if you don't already know em
+        for (var key in data) {
+          let a = document.createElement('p');
+          a.innerText = data[key] + ' ' + key;
+          display.appendChild(a);
+        }
+        console.log(data);
+      })
+      .catch((err) => console.log(err));
     main.innerText =
-      "In the display port is your information at this company, User.";
-    display.innerText = "I should have some information, or something.";
+      `In the display port is your information at this company, ${clientInfo.firstName}.`;
   });
 
   submitReim.addEventListener("click", function () {
@@ -163,7 +142,6 @@ function userViewMaker() {
     /* var postReim = document.createElement('form');
         main.appendChild(postReim);
         form forces page restart, not ideal for a one page app*/
-
     var amount = document.createElement("input");
     amount.setAttribute("id", "amount");
     amount.setAttribute("type", "number");
@@ -184,7 +162,7 @@ function userViewMaker() {
     rType.setAttribute("type", "text");
     rType.setAttribute(
       "placeholder",
-      "Describe the purpose of your reimbursement."
+      "Put a number."
     );
     main.appendChild(rType);
 
@@ -197,7 +175,33 @@ function userViewMaker() {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
       }
-      display.innerText = "I display the resulting reimbursement here!";
+      fetch('http://localhost:3000/reimbursements', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: 0,
+          author: clientInfo.iD,
+          amount: document.getElementById('amount')['value'],
+          description: document.getElementById('description')['value'],
+          type: document.getElementById('rType')['value']
+        })
+      }).then((res) => res.json())
+        .then(function (data) {
+          while (display.firstChild) {
+            display.removeChild(display.firstChild);
+          }
+          for (var key in data) {
+            let a = document.createElement('p');
+            a.innerText = data[key] + ' ' + key;
+            display.appendChild(a);
+          }
+          console.log(data);
+        })
+        .catch((err) => console.log(err));
+      main.innerText =
+        `In the display port is your new Reimbursement, ${clientInfo.firstName}.`;
     });
   });
 }
@@ -256,7 +260,28 @@ function FMViewMaker() {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
       }
-      display.innerText = "I display the resulting user here!";
+      var url = new URL('http://localhost:3000/users/');
+      var url = url + document.getElementById('userId')['value'];
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      }).then((res) => res.json())
+        .then(function (data) {
+          while (display.firstChild) {
+            display.removeChild(display.firstChild);
+          }
+          for (var key in data) {
+            let a = document.createElement('p');
+            a.innerText = data[key] + ' ' + key;
+            display.appendChild(a);
+          }
+          console.log(data);
+        })
+        .catch((err) => console.log(err));
+      main.innerText =
+        `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
     });
   });
 
@@ -270,7 +295,6 @@ function FMViewMaker() {
     /* var postReim = document.createElement('form');
         main.appendChild(postReim);
         form forces page restart, not ideal for a one page app*/
-
     var amount = document.createElement("input");
     amount.setAttribute("id", "amount");
     amount.setAttribute("type", "number");
@@ -291,7 +315,7 @@ function FMViewMaker() {
     rType.setAttribute("type", "text");
     rType.setAttribute(
       "placeholder",
-      "Describe the purpose of your reimbursement."
+      "Put a number."
     );
     main.appendChild(rType);
 
@@ -304,7 +328,33 @@ function FMViewMaker() {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
       }
-      display.innerText = "I display the resulting reimbursement here!";
+      fetch('http://localhost:3000/reimbursements', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: 0,
+          author: clientInfo.iD,
+          amount: document.getElementById('amount')['value'],
+          description: document.getElementById('description')['value'],
+          type: document.getElementById('rType')['value']
+        })
+      }).then((res) => res.json())
+        .then(function (data) {
+          while (display.firstChild) {
+            display.removeChild(display.firstChild);
+          }
+          for (var key in data) {
+            let a = document.createElement('p');
+            a.innerText = data[key] + ' ' + key;
+            display.appendChild(a);
+          }
+          console.log(data);
+        })
+        .catch((err) => console.log(err));
+      main.innerText =
+        `In the display port is your new Reimbursement, ${clientInfo.firstName}.`;
     });
   });
 
@@ -354,37 +404,75 @@ function FMViewMaker() {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
       }
-      console.log("The submission ran!");
-      display.innerText = "I display the resulting reimbursement here!";
+      let payload = {
+        id: 0,
+        description: document.getElementById('description')['value'],
+        resolver: clientInfo.iD,
+        amount: document.getElementById('amount')['value'],
+        description: document.getElementById('description')['value'],
+        type: document.getElementById('rType')['value']
+      }
+      // GET THE PAYLOAD TO DELETE NULLS ENTIRELY!!!
+      fetch('http://localhost:3000/reimbursements', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        // I AM HERE, need to make it that the payload is changeable, if something ain't specified,
+        // It don't even go into the body!!!
+        body: JSON.stringify({
+          id: 0,
+          description: document.getElementById('description')['value'],
+          resolver: clientInfo.iD,
+          amount: document.getElementById('amount')['value'],
+          description: document.getElementById('description')['value'],
+          type: document.getElementById('rType')['value']
+        })
+      }).then((res) => res.json())
+        .then(function (data) {
+          while (display.firstChild) {
+            display.removeChild(display.firstChild);
+          }
+          for (var key in data) {
+            let a = document.createElement('p');
+            a.innerText = data[key] + ' ' + key;
+            display.appendChild(a);
+          }
+          console.log(data);
+        })
+        .catch((err) => console.log(err));
+      main.innerText =
+        `In the display port is your new Reimbursement, ${clientInfo.firstName}.`;
     });
   });
+});
 
-  searchAllReimS.addEventListener("click", function () {
+searchAllReimS.addEventListener("click", function () {
+  while (display.firstChild) {
+    display.removeChild(display.firstChild);
+  }
+  while (main.firstChild) {
+    main.removeChild(main.firstChild);
+  }
+
+  var input = document.createElement("input");
+  input.setAttribute("id", "input");
+  // drop down menu for this one
+  input.setAttribute("type", "number");
+  main.appendChild(input);
+
+  var submitter = document.createElement("button");
+  submitter.setAttribute("id", "submitter");
+  submitter.innerText = "Submit";
+  main.appendChild(submitter);
+
+  submitter.addEventListener("click", function () {
     while (display.firstChild) {
       display.removeChild(display.firstChild);
     }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
-
-    var input = document.createElement("input");
-    input.setAttribute("id", "input");
-    // drop down menu for this one
-    input.setAttribute("type", "number");
-    main.appendChild(input);
-
-    var submitter = document.createElement("button");
-    submitter.setAttribute("id", "submitter");
-    submitter.innerText = "Submit";
-    main.appendChild(submitter);
-
-    submitter.addEventListener("click", function () {
-      while (display.firstChild) {
-        display.removeChild(display.firstChild);
-      }
-      display.innerText = "I display the resulting list here!";
-    });
+    display.innerText = "I display the resulting list here!";
   });
+});
 }
 
 function adminViewMaker() {
