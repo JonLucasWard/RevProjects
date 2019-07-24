@@ -4,33 +4,43 @@ display = document.getElementById("display");
 logout = document.getElementById("logout");
 title = document.getElementById("title");
 login = document.getElementById("Login");
+clientInfo = {};
 
 // make a function that makes the following addEventListener, call it on need to remake
-async function loginMaker() {
+function loginMaker() {
   login.addEventListener("click", function () {
     var usrnam = document.getElementById("text-box")["value"];
     var passy = document.getElementById("passy")["value"]; // required me to not have password field
-    const rawResponse = fetch("http://localhost:3000/login", {
-      method: "POST",
-      mode: "no-cors",
+    fetch('http://localhost:3000/login', {
+      method: 'POST',
       headers: {
-        'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        'UserName': usrnam,
-        'Password': passy
-      })
-    });
-    const content = await rawResponse.json();
-    console.log(content);
-
-    /*.then(function (data) {
+      body: JSON.stringify({ UserName: usrnam, Password: passy })
+    }).then((res) => res.json())
+      .then(function (data) {
+        clientInfo = data;
         while (display.firstChild) {
           display.removeChild(display.firstChild);
         }
+        switch (clientInfo.role) {
+          case 3:
+            userViewMaker();
+            break;
+          case 2:
+            FMViewMaker();
+            break;
+          case 1:
+            adminViewMaker();
+            break;
+        }
+      })
+      .catch((err) => console.log(err));
+
+    /*.then(function (data) {
+        
         console.log(body);
-        userViewMaker();
+        
         console.log("Request success: ", data);
       })
       .catch(function (error) {
@@ -45,6 +55,12 @@ async function loginMaker() {
       });*/
   });
   /*switch (usrnam) {
+    case "User":
+      while (display.firstChild) {
+          display.removeChild(display.firstChild);
+        }
+        userViewMaker();
+        break;
     case "FM":
       while (display.firstChild) {
         display.removeChild(display.firstChild);
@@ -123,7 +139,7 @@ function userViewMaker() {
   submitReim.setAttribute("id", "submitReim");
   submitReim.innerText = "Submit Reimbursement";
   navBar.appendChild(submitReim);
-  main.innerText = "Welcome User, please select an option from the nav bar";
+  main.innerText = `Welcome ${clientInfo.firstName}, please select an option from the nav bar`;
 
   user.addEventListener("click", function () {
     while (display.firstChild) {
@@ -216,7 +232,7 @@ function FMViewMaker() {
   searchAllReimS.innerText = "Search By Status";
   navBar.appendChild(searchAllReimS);
 
-  main.innerText = "Welcome FM, please select an option from the nav bar";
+  main.innerText = `Welcome ${clientInfo.firstName}, please select an option from the nav bar`;
 
   user.addEventListener("click", function () {
     while (display.firstChild) {
@@ -396,7 +412,7 @@ function adminViewMaker() {
   userUpd8.innerText = "Update User";
   navBar.appendChild(userUpd8);
 
-  main.innerText = "Welcome Admin, please select an option from the nav bar";
+  main.innerText = `Welcome ${clientInfo.firstName}, please select an option from the nav bar`;
 
   user.addEventListener("click", function () {
     while (display.firstChild) {

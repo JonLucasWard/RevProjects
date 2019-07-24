@@ -13,6 +13,7 @@ import loginRouter from "./routers/loginRouter"; // series of functions for the 
 import reimRouter from "./routers/reimRouter"; // functions for the reimbursement URL
 import userRouter from "./routers/userRouter"; // functions for the user URL
 import db from "./util/pg-connector"; // connector to the database
+import cors from "cors";
 
 const app = express(); // opens an instance of express to communicate with HTTP, this is the "app" in total
 const port = 3000; // the local port we are communicating with to do this
@@ -20,9 +21,9 @@ const port_handler = app.listen(port, () =>
   console.log(`ERS app listening on port ${port}!`)
 ); // port_handler is what "listens" for actions done on the port, the console log is just to know that it's on
 
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json()); // turning on bodyParser? Could be a useless call.
 app.use(express.json()); // turning on express? Could be a useless call.
+app.use(cors());
 
 app.use((req, res, next) => {
   console.log("Request received for " + req.url);
