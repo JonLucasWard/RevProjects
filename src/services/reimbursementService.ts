@@ -15,13 +15,14 @@ export async function addReimbursement(body) {
     const result = await db.query(`INSERT INTO reimbursements (author, amount, datesubmitted, description, status, type)
     VALUES ($1, $2, NOW(), $3, 1, $4) RETURNING *`,
         [body.author, body.amount, body.description, body.type]);
-// Comments about the structure of query and response data is addressed in the usersService file, this
-// is just more of the same.
+    // Comments about the structure of query and response data is addressed in the usersService file, this
+    // is just more of the same.
     const reimData = result.rows[0];
     const reimbursement = new Reimbursement();
 
     for (let key of Object.keys(reimbursement)) {
-        reimbursement[key] = reimData[key.toLowerCase()]; }
+        reimbursement[key] = reimData[key.toLowerCase()];
+    }
     return reimbursement;
 }
 
@@ -50,6 +51,7 @@ async function getReimbursementId(reimID): Promise<Reimbursement> {
  * @param patch - Passed information from the user will be matched to the reimbursement data structure and used
  */
 export async function editReimbursement(patch: Reimbursement) {
+    console.log(patch);
     const currentState = await getReimbursementId(patch.id);
     const newState = {
         ...currentState, ...patch,
@@ -57,7 +59,7 @@ export async function editReimbursement(patch: Reimbursement) {
 
     const result = await db.query(`UPDATE reimbursements SET dateresolved = NOW(), description = $1, resolver = $2,
     status = $3 WHERE id = $4 RETURNING *;`,
-            [newState.description, newState.resolver, newState.status, patch.id]);
+        [newState.description, newState.resolver, newState.status, patch.id]);
 
     return result.rows[0];
 }

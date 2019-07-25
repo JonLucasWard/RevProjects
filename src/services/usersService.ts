@@ -3,7 +3,7 @@
  * Most functions here will call and return user information.
  */
 import User from '../models/users'; // We want to have data conform to the user object model
-import {Logger} from '../routers/loginRouter'; /* Allow access to the Logger global
+import { Logger } from '../routers/loginRouter'; /* Allow access to the Logger global
 variable. More information in the loginRouter */
 import db from '../util/pg-connector'; // To allow access to the database at all
 
@@ -32,10 +32,10 @@ export async function userLogin(usrnam, passy) {
     if (result.rows[0] === undefined) {
         answer = false;
     } else {
-    answer = true;
-    Logger.UserID = result.rows[0].id; // result object -> row array [0] (first one) 
-    // -> .id is a property on that array object
-    Logger.Role = result.rows[0].role; // and again for the role
+        answer = true;
+        Logger.UserID = result.rows[0].id; // result object -> row array [0] (first one) 
+        // -> .id is a property on that array object
+        Logger.Role = result.rows[0].role; // and again for the role
     }
     return answer; // ends the function
 }
@@ -60,6 +60,18 @@ export async function getUserId(userID): Promise<User> {
     return matchedUser; // return the completed User object to be read
 }
 
+export async function getUserByUName(usn): Promise<User> {
+    const queryString = `select * from users where username = $1`;
+    const result = await db.query(queryString, [usn]);
+    const userData = result.rows[0]; // userData now contains only the relevant information we want, however
+    // it still isn't matched properly
+    const matchedUser = new User(); // We will pass userData into this
+    for (let key of Object.keys(matchedUser)) { // Object.keys(objectName) treats the passed object's keys as an array
+        matchedUser[key] = userData[key.toLowerCase()]; // toLowerCase just in case there are differences in field names
+    }
+    return matchedUser; // return the completed User object to be read
+}
+
 /**
  * The following function simply returns a list of all users from the database
  * @async asynchronous function, whenever you see this, it is the code sending a function to an outside
@@ -77,7 +89,7 @@ export async function getAllUsers() {
     for (let user of usersData) { // user is just an iterator, ideally every block of data belongs to a user
         users.push(new User()); // If there is a user block in the database, make one in our copy
         let currentUser = users[users.length - 1]; // Set a counter equal to the number of fields in the object
-        for (let key of Object.keys(currentUser)) {currentUser[key] = user[key.toLowerCase()]; }
+        for (let key of Object.keys(currentUser)) { currentUser[key] = user[key.toLowerCase()]; }
         // the above for loop will fill in the values of each field to the related user
     } // the code now repeats until there are no more users left
 
@@ -120,7 +132,7 @@ export async function updateUser(patch: User) {
 
     const result = await db.query(`UPDATE users SET username = $1, password = $2, firstname = $3, lastname = $4,
     email = $5 WHERE id = $6 RETURNING username, firstname, lastname, email;`,
-            [newState.userName, newState.passWord, newState.firstName, newState.lastName, newState.email, patch.iD]);
+        [newState.userName, newState.passWord, newState.firstName, newState.lastName, newState.email, patch.iD]);
     // The above, MASSIVE query, basically tries to update everything that is reasonable to update using 
     // the newState object
     return result.rows[0];
