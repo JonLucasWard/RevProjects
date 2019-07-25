@@ -5,18 +5,17 @@
  * referred by other functions if their information needs to be accessed again, without having to
  * force the user to re-enter their information each time.
  */
-import express, { Request, Response } from "express";
-import User from "../models/users"; // The User model is necessary to return the user's login data back
-import * as usersService from "../services/usersService"; // As per above
 
-const {
-  sha256
-} = require("crypto-hash"); /* Turn passwords into human unreadable hashes, no password
+import express, { Request, Response } from 'express';
+import User from '../models/users'; // The User model is necessary to return the user's login data back
+import * as usersService from '../services/usersService'; // As per above
+
+const { sha256 } = require('crypto-hash'); /* Turn passwords into human unreadable hashes, no password
 is actually saved or used in its 'normal' form */
 const loginRouter = express.Router(); // This creates a new instance of express unique to the login path
 
-/* EXPERIMENTAL!!!! */
-// const jwt = require('jsonwebtoken');
+/* EXPERIMENTAL!!!! 
+const jwt = require('jsonwebtoken');*/
 
 /**
  * The key to the login so to say. The Logger object will store the user's password, username, role, and
@@ -51,6 +50,7 @@ loginRouter.post("", async (request: Request, response: Response) => {
     request.body.Password,
   ); /* Immediately turn the entry into a hash
         That's all the hashing we do here. Just this one line. Amazing ain't it? */
+  
   // We want the variable "valid" to be given type boolean, it should return true if the user logged in correctly
   try {
     const valid: boolean = await usersService.userLogin(
@@ -73,6 +73,24 @@ loginRouter.post("", async (request: Request, response: Response) => {
     response.status(400).json('Improper input.');
   }
 });
+/*
+export function tokenChecker(req1, req2) {
+        console.log('Am I even running?');
+        let authorization = req2;
+        console.log(authorization);
+        let decoded;
+        decoded = jwt.verify(authorization, 'private key');
+        console.log(`let's decode!
+        ${decoded}`);
+        return decoded;
+}
+
+loginRouter.get('', async (request: Request, response: Response) => {
+    let reqHead = request.headers;
+    let reqAuth = request.headers.authorization;
+    let revivedUser: User = await tokenChecker(reqHead, reqAuth);
+    response.send(revivedUser);
+});*/
 
 /*
 export function tokenChecker(req1, req2) {
