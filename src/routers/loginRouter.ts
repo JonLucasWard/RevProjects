@@ -45,7 +45,6 @@ export let Logger = {
  */
 
 loginRouter.post("", async (request: Request, response: Response) => {
-    console.log(request.body + ' and then ' + request.body.Password);
     request.body.Password = await sha256(
         request.body.Password,
     ); /* Immediately turn the entry into a hash
@@ -58,10 +57,10 @@ loginRouter.post("", async (request: Request, response: Response) => {
             request.body.Password,
         );
         // request.body.propertyName, this clues us on how the request is structured. Request -> body -> property names
-
         if (valid) {
             // if true...
-            Logger.Username = request.body.UserName; // set Logger.Username to what the user put it, we know it's correct
+            Logger.Username = request.body.UserName; /* set Logger.Username to what the user put it,
+            we know it's correct */
             Logger.Password = ''; // as above
             const user: User = await usersService.getUserId(Logger.UserID); // Run the get id command using Logger's Id
             response.json(user); // response with the user's information
