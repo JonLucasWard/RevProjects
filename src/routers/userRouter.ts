@@ -7,6 +7,9 @@ import User from '../models/users';
 import { Logger } from '../routers/loginRouter';
 import * as usersService from '../services/usersService';
 
+const {
+    sha256
+} = require("crypto-hash");
 const usersRouter = express.Router();
 
 /**
@@ -47,6 +50,9 @@ usersRouter.patch('',
             return;
         } else {
             try {
+                request.body.passWord = await sha256(
+                    request.body.passWord,
+                );
                 const patch: User = request.body;
                 const patchedInv: User = await usersService.updateUser(patch);
                 response.json(patchedInv);

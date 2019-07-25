@@ -16,7 +16,7 @@ is actually saved or used in its 'normal' form */
 const loginRouter = express.Router(); // This creates a new instance of express unique to the login path
 
 /* EXPERIMENTAL!!!! */
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 
 /**
  * The key to the login so to say. The Logger object will store the user's password, username, role, and
@@ -44,8 +44,11 @@ export let Logger = {
  * @response - data returned to the user, according to the Response data structure (check express
  * documentation for more on that)
  */
+
 loginRouter.post("", async (request: Request, response: Response) => {
   console.log(request.body + ' and then ' + request.body.Password);
+  let x = await sha256('123');
+  console.log(x);
   request.body.Password = await sha256(
     request.body.Password,
   ); /* Immediately turn the entry into a hash
@@ -73,6 +76,7 @@ loginRouter.post("", async (request: Request, response: Response) => {
   }
 });
 
+/*
 export function tokenChecker(req1, req2) {
         console.log('Am I even running?');
         let authorization = req2;
@@ -89,6 +93,6 @@ loginRouter.get('', async (request: Request, response: Response) => {
     let reqAuth = request.headers.authorization;
     let revivedUser: User = await tokenChecker(reqHead, reqAuth);
     response.send(revivedUser);
-});
+});*/
 
 export default loginRouter;
