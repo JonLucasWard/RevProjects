@@ -47,8 +47,6 @@ export let Logger = {
 
 loginRouter.post("", async (request: Request, response: Response) => {
   console.log(request.body + ' and then ' + request.body.Password);
-  let x = await sha256('123');
-  console.log(x);
   request.body.Password = await sha256(
     request.body.Password,
   ); /* Immediately turn the entry into a hash
