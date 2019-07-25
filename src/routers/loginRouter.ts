@@ -26,10 +26,10 @@ const jwt = require('jsonwebtoken');*/
  * The starting values are also meant to imply appropriate typing for these values.
  */
 export let Logger = {
-  Password: "",
-  Role: 0,
-  UserID: 0,
-  Username: ""
+    Password: "",
+    Role: 0,
+    UserID: 0,
+    Username: ""
 };
 
 /**
@@ -45,33 +45,33 @@ export let Logger = {
  */
 
 loginRouter.post("", async (request: Request, response: Response) => {
-  console.log(request.body + ' and then ' + request.body.Password);
-  request.body.Password = await sha256(
-    request.body.Password,
-  ); /* Immediately turn the entry into a hash
+    console.log(request.body + ' and then ' + request.body.Password);
+    request.body.Password = await sha256(
+        request.body.Password,
+    ); /* Immediately turn the entry into a hash
         That's all the hashing we do here. Just this one line. Amazing ain't it? */
-  
-  // We want the variable "valid" to be given type boolean, it should return true if the user logged in correctly
-  try {
-    const valid: boolean = await usersService.userLogin(
-      request.body.UserName,
-      request.body.Password,
-    );
-    // request.body.propertyName, this clues us on how the request is structured. Request -> body -> property names
 
-    if (valid) {
-      // if true...
-      Logger.Username = request.body.UserName; // set Logger.Username to what the user put it, we know it's correct
-      Logger.Password = ''; // as above
-      const user: User = await usersService.getUserId(Logger.UserID); // Run the get id command using Logger's Id
-      response.json(user); // response with the user's information
+    // We want the variable "valid" to be given type boolean, it should return true if the user logged in correctly
+    try {
+        const valid: boolean = await usersService.userLogin(
+            request.body.UserName,
+            request.body.Password,
+        );
+        // request.body.propertyName, this clues us on how the request is structured. Request -> body -> property names
 
-    } else {
-      response.status(400).json('Invalid Credentials'); // give an error if the user gave a bad login
+        if (valid) {
+            // if true...
+            Logger.Username = request.body.UserName; // set Logger.Username to what the user put it, we know it's correct
+            Logger.Password = ''; // as above
+            const user: User = await usersService.getUserId(Logger.UserID); // Run the get id command using Logger's Id
+            response.json(user); // response with the user's information
+
+        } else {
+            response.status(400).json('Invalid Credentials'); // give an error if the user gave a bad login
+        }
+    } catch (error) {
+        response.status(400).json('Improper input.');
     }
-  } catch (error) {
-    response.status(400).json('Improper input.');
-  }
 });
 /*
 export function tokenChecker(req1, req2) {
