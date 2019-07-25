@@ -17,12 +17,11 @@ const usersRouter = express.Router();
  */
 usersRouter.get('/:userId',
     async (request: Request, response: Response) => {
-        console.log(`${Logger.Role} is the role the server sees and ${request.params.userId} is the id it sees`);
         if (!Logger.Username) {
-            response.json('Please login to access this information!');
+            response.status(402).send('Please login to access this information!');
             return;
         } else if (Logger.Role !== 2 && Logger.UserID !== parseInt(request.params.userId, 10)) {
-            response.status(401).json('You are not authorized for this operation!');
+            response.status(401).send('You are not authorized for this operation!');
             return;
         } else {
             try {
@@ -31,7 +30,7 @@ usersRouter.get('/:userId',
                 response.json(user);
                 return;
             } catch (error) {
-                response.status(400).json('Bad inputs');
+                response.status(400).send('Bad inputs');
                 return;
             }
         }
@@ -43,10 +42,10 @@ usersRouter.get('/:userId',
 usersRouter.patch('',
     async (request: Request, response: Response) => {
         if (!Logger.Username) {
-            response.json('Please login to access this information!');
+            response.status(402).send('Please login to access this information!');
             return;
         } else if (Logger.Role !== 1) {
-            response.status(401).json('You are not authorized for this operation!');
+            response.status(401).send('You are not authorized for this operation!');
             return;
         } else {
             try {
@@ -58,7 +57,7 @@ usersRouter.patch('',
                 response.json(patchedInv);
                 return;
             } catch {
-                response.status(400).json('Bad inputs');
+                response.status(400).send('Bad inputs');
             }
         }
     });
@@ -68,17 +67,17 @@ usersRouter.patch('',
  */
 usersRouter.get('', async (request: Request, response: Response) => {
     if (!Logger.Username) {
-        response.json('Please login to access this information!');
+        response.status(402).send('Please login to access this information!');
         return;
     } else if (Logger.Role !== 2) {
-        response.status(401).json('You are not authorized for this operation!');
+        response.status(401).send('You are not authorized for this operation!');
         return;
     } else {
         try {
             const users = await usersService.getAllUsers();
             response.send(users);
         } catch (error) {
-            response.status(400).json('Bad inputs');
+            response.status(400).send('Bad inputs');
         }
     }
 });

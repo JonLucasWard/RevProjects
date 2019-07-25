@@ -14,13 +14,20 @@ function loginMaker() {
   login.addEventListener("click", function () {
     var usrnam = document.getElementById("text-box")["value"]; //get value of user's input
     var passy = document.getElementById("passy")["value"]; // and their password
+    responseText = '';
     fetch('http://localhost:3000/login', { // call to login
       method: 'POST',
       headers: {
         'Content-Type': 'application/json' //needed or it won't be accepted
       },
       body: JSON.stringify({ UserName: usrnam, Password: passy }) // send body to server
-    }).then((res) => res.json()) // receive and parse the response
+    }).then((res) => {
+      if (!res.ok) { // check if the response is under 400 (not an error)
+        res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+      } else { //^IF IZ BAD! You must PROMISE to get the error which runs AFTER the fetch, otherwise the response is LOCKED!
+        return res.json(); //return as normal if things are good
+      }
+    }) // receive and parse the response
       .then(function (data) { // data from the resulting response
         clientInfo = data; // push data into global variable object
         // clean up display if something is there.
@@ -113,7 +120,13 @@ function getSelf() {
     headers: {
       'Content-Type': 'application/json'
     },
-  }).then((res) => res.json())
+  }).then((res) => {
+    if (!res.ok) {
+      res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+    } else {
+      return res.json();
+    }
+  })
     .then(function (data) {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
@@ -185,7 +198,13 @@ function makeReim() {
         description: document.getElementById('description')['value'],
         type: document.getElementById('rType')['value']
       })
-    }).then((res) => res.json())
+    }).then((res) => {
+      if (!res.ok) {
+        res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+      } else {
+        return res.json();
+      }
+    })
       .then(function (data) {
         while (display.firstChild) {
           display.removeChild(display.firstChild);
@@ -195,7 +214,6 @@ function makeReim() {
           a.innerText = data[key] + ' ' + key;
           display.appendChild(a);
         }
-        console.log(data);
       })
       .catch((err) => console.log(err));
     main.innerText =
@@ -242,8 +260,13 @@ function FMViewMaker() {
   // #region make options for new view
   var user = document.createElement("button");
   user.setAttribute("id", "UserInfo");
-  user.innerText = "Search By UserID";
+  user.innerText = "Get Your Info";
   navBar.appendChild(user);
+
+  var userget = document.createElement('button');
+  userget.setAttribute("id", "UserGet");
+  userget.innerText = "Search By UserID";
+  navBar.appendChild(userget);
 
   var submitReim = document.createElement("button");
   submitReim.setAttribute("id", "submitReim");
@@ -272,6 +295,59 @@ function FMViewMaker() {
   user.addEventListener("click", function () {
     getSelf();
   });
+
+  userget.addEventListener('click', function () {
+    removeBody();
+    var userId = document.createElement('input');
+    userId.setAttribute("id", "userId");
+    userId.setAttribute("type", "number");
+    var userIdLabel = document.createElement('label');
+    userIdLabel.setAttribute('for', 'userId');
+    userIdLabel.innerText = 'ID #';
+    main.appendChild(userIdLabel);
+    main.appendChild(userId);
+    var submitter = document.createElement("button");
+    submitter.setAttribute("id", "submitter");
+    submitter.innerText = "Submit";
+    main.appendChild(submitter);
+
+    submitter.addEventListener("click", function () {
+      while (display.firstChild) {
+        display.removeChild(display.firstChild);
+      }
+      var url = new URL('http://localhost:3000/users/');
+      var url = url + document.getElementById('userId')['value'];
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      }).then((res) => {
+        if (!res.ok) {
+          res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+        } else {
+          return res.json();
+        }
+      })
+        .then(function (data) {
+          while (display.firstChild) {
+            display.removeChild(display.firstChild);
+          }
+          /*for (var key in data) {
+            console.log(key);
+          }*/ // can use this code to view keys in ANY object if you don't already know em
+          for (var key in data) {
+            let a = document.createElement('p');
+            a.innerText = 'Your ' + key + ' is ' + data[key];
+            display.appendChild(a);
+          }
+        })
+        .catch((err) => console.log(err));
+      main.innerText =
+        `In the display port is your information at this company, ${clientInfo.firstName}.`;
+    });
+  });
+
   // When user clicks to make a reimbursement
   submitReim.addEventListener("click", function () {
     makeReim();
@@ -354,7 +430,13 @@ function FMViewMaker() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
-      }).then((res) => res.json())
+      }).then((res) => {
+        if (!res.ok) {
+          res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+        } else {
+          return res.json();
+        }
+      })
         .then(function (data) {
           while (display.firstChild) { // clear display
             display.removeChild(display.firstChild);
@@ -381,7 +463,13 @@ function FMViewMaker() {
       headers: {
         'Content-Type': 'application/json'
       },
-    }).then((res) => res.json())
+    }).then((res) => {
+      if (!res.ok) {
+        res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+      } else {
+        return res.json();
+      }
+    })
       .then(function (data) {
         while (display.firstChild) {
           display.removeChild(display.firstChild);
@@ -446,7 +534,13 @@ function FMViewMaker() {
         headers: {
           'Content-Type': 'application/json'
         },
-      }).then((res) => res.json())
+      }).then((res) => {
+        if (!res.ok) {
+          res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+        } else {
+          return res.json();
+        }
+      })
         .then(function (data) {
           while (display.firstChild) {
             display.removeChild(display.firstChild);
@@ -552,7 +646,7 @@ function adminViewMaker() {
     var emailAddLabel = document.createElement('label');
     emailAddLabel.setAttribute('for', 'emailAdd');
     emailAddLabel.innerText = 'Email';
-    main.appendChild(amountLabel);
+    main.appendChild(emailAddLabel);
     main.appendChild(emailAdd);
 
     var submitter = document.createElement("button");
@@ -587,7 +681,13 @@ function adminViewMaker() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload) // turn object into readable JSON
-      }).then((res) => res.json()) // get results
+      }).then((res) => {
+        if (!res.ok) {
+          res.text().then(text => { responseText = Error(text); console.log(responseText); display.innerText = responseText; });
+        } else {
+          return res.json();
+        }
+      })
         .then(function (data) { // data is readable results
           while (display.firstChild) {
             display.removeChild(display.firstChild);
@@ -597,7 +697,6 @@ function adminViewMaker() {
             a.innerText = data[key] + ' ' + key;
             display.appendChild(a);
           }
-          console.log(data);
         })
         .catch((err) => console.log(err));
       // #endregion
