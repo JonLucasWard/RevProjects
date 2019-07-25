@@ -1,28 +1,33 @@
+// #region Global Variables
+// All main parts of the webpage that are always accessible
 main = document.getElementById("main");
 navBar = document.getElementById("NavBar");
 display = document.getElementById("display");
 logout = document.getElementById("logout");
-title = document.getElementById("title");
+title = document.getElementById("title"); // I forgot to change this to change views, derp
 login = document.getElementById("Login");
 clientInfo = {};
+// #endregion
 
+// give functionality to login button
 function loginMaker() {
   login.addEventListener("click", function () {
-    var usrnam = document.getElementById("text-box")["value"];
-    var passy = document.getElementById("passy")["value"]; // required me to not have password field
-    fetch('http://localhost:3000/login', {
+    var usrnam = document.getElementById("text-box")["value"]; //get value of user's input
+    var passy = document.getElementById("passy")["value"]; // and their password
+    fetch('http://localhost:3000/login', { // call to login
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json' //needed or it won't be accepted
       },
-      body: JSON.stringify({ UserName: usrnam, Password: passy })
-    }).then((res) => res.json())
-      .then(function (data) {
-        clientInfo = data;
-        console.log(data);
+      body: JSON.stringify({ UserName: usrnam, Password: passy }) // send body to server
+    }).then((res) => res.json()) // receive and parse the response
+      .then(function (data) { // data from the resulting response
+        clientInfo = data; // push data into global variable object
+        // clean up display if something is there.
         while (display.firstChild) {
           display.removeChild(display.firstChild);
         }
+        // check role value, change display according to user role
         switch (clientInfo.role) {
           case 3:
             userViewMaker();
@@ -39,10 +44,12 @@ function loginMaker() {
   });
 }
 
+// build login functionality
 loginMaker();
 
+// Functionality of logout button
 logout.addEventListener("click", function () {
-  // clear body
+  // #region clear body divs
   while (main.firstChild) {
     main.removeChild(main.firstChild);
   }
@@ -52,73 +59,137 @@ logout.addEventListener("click", function () {
   while (navBar.firstChild) {
     navBar.removeChild(navBar.firstChild);
   }
-  // remake login
+  // #endregion
+  // #region Remake login
   var introPara = document.createElement("p");
-  introPara.innerText = "Please login.";
+  introPara.innerText = "Please log in.";
   main.appendChild(introPara);
+
   var username = document.createElement("input");
   username.setAttribute("id", "text-box");
   username.setAttribute("type", "text");
-  username.setAttribute("placeholder", "Username");
+  var userLabel = document.createElement('label');
+  userLabel.setAttribute('for', 'text-box');
+  userLabel.innerText = 'Username';
+  main.appendChild(userLabel);
   main.appendChild(username);
+
   var password = document.createElement("input");
   password.setAttribute("id", "passy");
   password.setAttribute("type", "password");
-  password.setAttribute("placeholder", "Password");
+  var passLabel = document.createElement('label');
+  passLabel.setAttribute('for', 'passy');
+  passLabel.innerText = 'Password';
+  main.appendChild(passLabel);
   main.appendChild(password);
+
   var newlog = document.createElement("input");
   newlog.setAttribute("type", "submit");
   newlog.setAttribute("id", "Login");
   main.appendChild(newlog);
+  // #endregion
+
   login = document.getElementById("Login");
   loginMaker();
-  console.log("I finished logging out");
-  // re-hide logout
 });
 
-function userViewMaker() {
+function removeBody() {
   while (display.firstChild) {
     display.removeChild(display.firstChild);
-  }
-  while (navBar.firstChild) {
-    navBar.removeChild(navBar.firstChild);
   }
   while (main.firstChild) {
     main.removeChild(main.firstChild);
   }
-  var user = document.createElement("button");
-  user.setAttribute("id", "UserInfo");
-  user.innerText = "Your Information";
-  navBar.appendChild(user);
-  var submitReim = document.createElement("button");
-  submitReim.setAttribute("id", "submitReim");
-  submitReim.innerText = "Submit Reimbursement";
-  navBar.appendChild(submitReim);
-  main.innerText = `Welcome ${clientInfo.firstName}, please select an option from the nav bar`;
+}
 
-  user.addEventListener("click", function () {
+// Repeated code for a user to get their own information
+function getSelf() {
+  removeBody();
+  var url = new URL('http://localhost:3000/users/');
+  var url = url + clientInfo.iD;
+
+  fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  }).then((res) => res.json())
+    .then(function (data) {
+      while (display.firstChild) {
+        display.removeChild(display.firstChild);
+      }
+      /*for (var key in data) {
+        console.log(key);
+      }*/ // can use this code to view keys in ANY object if you don't already know em
+      for (var key in data) {
+        let a = document.createElement('p');
+        a.innerText = 'Your ' + key + ' is ' + data[key];
+        display.appendChild(a);
+      }
+    })
+    .catch((err) => console.log(err));
+  main.innerText =
+    `In the display port is your information at this company, ${clientInfo.firstName}.`;
+}
+
+function makeReim() {
+  removeBody();
+  /* var postReim = document.createElement('form');
+      main.appendChild(postReim);
+      form forces page restart, not ideal for a one page app*/
+  var amount = document.createElement("input");
+  amount.setAttribute("id", "amount");
+  amount.setAttribute("type", "number");
+  var amountLabel = document.createElement('label');
+  amountLabel.setAttribute('for', 'amount');
+  amountLabel.innerText = 'Amount';
+  main.appendChild(amountLabel);
+  main.appendChild(amount);
+  var description = document.createElement("input");
+  description.setAttribute("id", "description");
+  description.setAttribute("type", "text");
+  var descLabel = document.createElement('label');
+  descLabel.setAttribute('for', 'description');
+  descLabel.innerText = 'Description';
+  main.appendChild(descLabel);
+  main.appendChild(description);
+
+  // rType should be a drop-menu list selector
+  var rType = document.createElement("input");
+  rType.setAttribute("id", "rType");
+  rType.setAttribute("type", "text");
+  var rTypeLabel = document.createElement('label');
+  rTypeLabel.setAttribute('for', 'rType');
+  rTypeLabel.innerText = 'Type';
+  main.appendChild(rTypeLabel);
+  main.appendChild(rType);
+
+  var submitter = document.createElement("button");
+  submitter.setAttribute("id", "submitter");
+  submitter.innerText = "Submit";
+  main.appendChild(submitter);
+
+  submitter.addEventListener("click", function () {
     while (display.firstChild) {
       display.removeChild(display.firstChild);
     }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
-    var url = new URL('http://localhost:3000/users/');
-    var url = url + clientInfo.iD;
-
-    fetch(url, {
-      method: 'GET',
+    fetch('http://localhost:3000/reimbursements', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
+      body: JSON.stringify({
+        id: 0,
+        author: clientInfo.iD,
+        amount: document.getElementById('amount')['value'],
+        description: document.getElementById('description')['value'],
+        type: document.getElementById('rType')['value']
+      })
     }).then((res) => res.json())
       .then(function (data) {
         while (display.firstChild) {
           display.removeChild(display.firstChild);
         }
-        /*for (var key in data) {
-          console.log(key);
-        }*/ // can use this code to view keys in ANY object if you don't already know em
         for (var key in data) {
           let a = document.createElement('p');
           a.innerText = data[key] + ' ' + key;
@@ -128,93 +199,47 @@ function userViewMaker() {
       })
       .catch((err) => console.log(err));
     main.innerText =
-      `In the display port is your information at this company, ${clientInfo.firstName}.`;
+      `In the display port is your new Reimbursement, ${clientInfo.firstName}.`;
   });
+}
 
+function userViewMaker() {
+  // #region clear body
+  while (navBar.firstChild) {
+    navBar.removeChild(navBar.firstChild);
+  }
+  removeBody();
+  // #endregion
+  // #region make user page
+  var user = document.createElement("button")
+  user.setAttribute("id", "UserInfo");
+  user.innerText = "Your Information";
+  navBar.appendChild(user);
+  var submitReim = document.createElement("button")
+  submitReim.setAttribute("id", "submitReim");
+  submitReim.innerText = "Submit Reimbursement";
+  navBar.appendChild(submitReim);
+  // #endregion
+  main.innerText = `Welcome ${clientInfo.firstName}, please select an option from the nav bar`;
+
+  // When user clicks for their own information
+  user.addEventListener("click", function () {
+    getSelf();
+  });
+  // When user clicks to make a reimbursement
   submitReim.addEventListener("click", function () {
-    while (display.firstChild) {
-      display.removeChild(display.firstChild);
-    }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
-    /* var postReim = document.createElement('form');
-        main.appendChild(postReim);
-        form forces page restart, not ideal for a one page app*/
-    var amount = document.createElement("input");
-    amount.setAttribute("id", "amount");
-    amount.setAttribute("type", "number");
-    amount.setAttribute("placeholder", "123.45");
-    main.appendChild(amount);
-    var description = document.createElement("input");
-    description.setAttribute("id", "description");
-    description.setAttribute("type", "text");
-    description.setAttribute(
-      "placeholder",
-      "Describe the purpose of your reimbursement."
-    );
-    main.appendChild(description);
-
-    // rType should be a drop-menu list selector
-    var rType = document.createElement("input");
-    rType.setAttribute("id", "rType");
-    rType.setAttribute("type", "text");
-    rType.setAttribute(
-      "placeholder",
-      "Put a number."
-    );
-    main.appendChild(rType);
-
-    var submitter = document.createElement("button");
-    submitter.setAttribute("id", "submitter");
-    submitter.innerText = "Submit";
-    main.appendChild(submitter);
-
-    submitter.addEventListener("click", function () {
-      while (display.firstChild) {
-        display.removeChild(display.firstChild);
-      }
-      fetch('http://localhost:3000/reimbursements', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          id: 0,
-          author: clientInfo.iD,
-          amount: document.getElementById('amount')['value'],
-          description: document.getElementById('description')['value'],
-          type: document.getElementById('rType')['value']
-        })
-      }).then((res) => res.json())
-        .then(function (data) {
-          while (display.firstChild) {
-            display.removeChild(display.firstChild);
-          }
-          for (var key in data) {
-            let a = document.createElement('p');
-            a.innerText = data[key] + ' ' + key;
-            display.appendChild(a);
-          }
-          console.log(data);
-        })
-        .catch((err) => console.log(err));
-      main.innerText =
-        `In the display port is your new Reimbursement, ${clientInfo.firstName}.`;
-    });
+    makeReim();
   });
 }
 
 function FMViewMaker() {
-  while (display.firstChild) {
-    display.removeChild(display.firstChild);
-  }
+  // #region clear all
+  removeBody();
   while (navBar.firstChild) {
     navBar.removeChild(navBar.firstChild);
   }
-  while (main.firstChild) {
-    main.removeChild(main.firstChild);
-  }
+  // #endregion 
+  // #region make options for new view
   var user = document.createElement("button");
   user.setAttribute("id", "UserInfo");
   user.innerText = "Search By UserID";
@@ -239,191 +264,90 @@ function FMViewMaker() {
   searchAllUsers.setAttribute("id", "searchAllUsers");
   searchAllUsers.innerText = "Get All Users";
   navBar.appendChild(searchAllUsers);
+  // #endregion
 
   main.innerText = `Welcome ${clientInfo.firstName}, please select an option from the nav bar`;
 
+  // When user clicks for their own information
   user.addEventListener("click", function () {
-    while (display.firstChild) {
-      display.removeChild(display.firstChild);
-    }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
-    var userId = document.createElement("input");
-    userId.setAttribute("id", "userId");
-    userId.setAttribute("type", "number");
-    userId.setAttribute("placeholder", "1");
-    main.appendChild(userId);
-
-    var submitter = document.createElement("button");
-    submitter.setAttribute("id", "submitter");
-    submitter.innerText = "Submit";
-    main.appendChild(submitter);
-
-    submitter.addEventListener("click", function () {
-      while (display.firstChild) {
-        display.removeChild(display.firstChild);
-      }
-      var url = new URL('http://localhost:3000/users/');
-      var url = url + document.getElementById('userId')['value'];
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      }).then((res) => res.json())
-        .then(function (data) {
-          while (display.firstChild) {
-            display.removeChild(display.firstChild);
-          }
-          for (var key in data) {
-            let a = document.createElement('p');
-            a.innerText = data[key] + ' ' + key;
-            display.appendChild(a);
-          }
-          console.log(data);
-        })
-        .catch((err) => console.log(err));
-      main.innerText =
-        `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
-    });
+    getSelf();
   });
-
+  // When user clicks to make a reimbursement
   submitReim.addEventListener("click", function () {
-    while (display.firstChild) {
-      display.removeChild(display.firstChild);
-    }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
-    /* var postReim = document.createElement('form');
-        main.appendChild(postReim);
-        form forces page restart, not ideal for a one page app*/
-    var amount = document.createElement("input");
-    amount.setAttribute("id", "amount");
-    amount.setAttribute("type", "number");
-    amount.setAttribute("placeholder", "123.45");
-    main.appendChild(amount);
-    var description = document.createElement("input");
-    description.setAttribute("id", "description");
-    description.setAttribute("type", "text");
-    description.setAttribute(
-      "placeholder",
-      "Describe the purpose of your reimbursement."
-    );
-    main.appendChild(description);
-
-    // rType should be a drop-menu list selector
-    var rType = document.createElement("input");
-    rType.setAttribute("id", "rType");
-    rType.setAttribute("type", "text");
-    rType.setAttribute(
-      "placeholder",
-      "Put a number."
-    );
-    main.appendChild(rType);
-
-    var submitter = document.createElement("button");
-    submitter.setAttribute("id", "submitter");
-    submitter.innerText = "Submit";
-    main.appendChild(submitter);
-
-    submitter.addEventListener("click", function () {
-      while (display.firstChild) {
-        display.removeChild(display.firstChild);
-      }
-      fetch('http://localhost:3000/reimbursements', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          id: 0,
-          author: clientInfo.iD,
-          amount: document.getElementById('amount')['value'],
-          description: document.getElementById('description')['value'],
-          type: document.getElementById('rType')['value']
-        })
-      }).then((res) => res.json())
-        .then(function (data) {
-          while (display.firstChild) {
-            display.removeChild(display.firstChild);
-          }
-          for (var key in data) {
-            let a = document.createElement('p');
-            a.innerText = data[key] + ' ' + key;
-            display.appendChild(a);
-          }
-          console.log(data);
-        })
-        .catch((err) => console.log(err));
-      main.innerText =
-        `In the display port is your new Reimbursement, ${clientInfo.firstName}.`;
-    });
+    makeReim();
   });
 
+  // When Financial Manager wants to update a reimbursement
   upd8Reim.addEventListener("click", function () {
-    while (display.firstChild) {
-      display.removeChild(display.firstChild);
-    }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
+    removeBody();
+    // #region create inputs and button
     var reimId = document.createElement('input');
     reimId.setAttribute("id", "reimId");
     reimId.setAttribute("type", "number");
-    reimId.setAttribute('placeholder', '123');
+    var reimIdLabel = document.createElement('label');
+    reimIdLabel.setAttribute('for', 'reimId');
+    reimIdLabel.innerText = 'ID #';
+    main.appendChild(reimIdLabel);
     main.appendChild(reimId);
 
     var amount = document.createElement("input");
     amount.setAttribute("id", "amount");
     amount.setAttribute("type", "number");
-    amount.setAttribute("placeholder", "123.45");
+    var amountLabel = document.createElement('label');
+    amountLabel.setAttribute('for', 'amount');
+    amountLabel.innerText = 'Amount';
+    main.appendChild(amountLabel);
     main.appendChild(amount);
     var description = document.createElement("input");
     description.setAttribute("id", "description");
     description.setAttribute("type", "text");
-    description.setAttribute(
-      "placeholder",
-      "Describe the purpose of your reimbursement."
-    );
+    var descriptionLabel = document.createElement('label');
+    descriptionLabel.setAttribute('for', 'description');
+    descriptionLabel.innerText = 'Amount';
+    main.appendChild(descriptionLabel);
     main.appendChild(description);
 
     // rType and rStatus should be a drop-menu list selector
     var rType = document.createElement("input");
     rType.setAttribute("id", "rType");
     rType.setAttribute("type", "number");
-    rType.setAttribute(
-      "placeholder",
-      "Describe the purpose of your reimbursement."
-    );
+    var rTypeLabel = document.createElement('label');
+    rTypeLabel.setAttribute('for', 'rType');
+    rTypeLabel.innerText = 'Type';
+    main.appendChild(rTypeLabel);
     main.appendChild(rType);
     var rStatus = document.createElement("input");
     rStatus.setAttribute("id", "rStatus");
     rStatus.setAttribute("type", "number");
-    rStatus.setAttribute("placeholder", "Reimbursement Current Status.");
+    var rStatusLabel = document.createElement('label');
+    rStatusLabel.setAttribute('for', 'rStatus');
+    rStatusLabel.innerText = 'Status';
+    main.appendChild(rStatusLabel);
     main.appendChild(rStatus);
 
     var submitter = document.createElement("button");
     submitter.setAttribute("id", "submitter");
     submitter.innerText = "Submit";
     main.appendChild(submitter);
-
+    // #endregion
+    // send update to reim
     submitter.addEventListener("click", function () {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
       }
-      let reimid = document.getElementById('reimId')['value'];
-      let payload = { id: parseInt(reimid), resolver: clientInfo.iD };
+      // #region make request body, if null, don't add it to object
+      let reimid = document.getElementById('reimId')['value']; // get value
+      let payload = { id: parseInt(reimid), resolver: clientInfo.iD }; // set basic payload
       let desc = document.getElementById('description')['value'];
-      if (desc != '') { payload.description = desc; }
+      if (desc != '') { payload.description = desc; } // check value
       let amt = document.getElementById('amount')['value'];
-      if (amt != '') { payload.amount = parseInt(amt); }
+      if (amt != '') { payload.amount = parseInt(amt); } // MUST CONVERT VALUE TO INT
       let rTy = document.getElementById('rType')['value'];
       if (rTy != '') { payload.type = parseInt(rTy); }
       let rSta = document.getElementById('rStatus')['value'];
       if (rSta != '') { payload.status = parseInt(rSta); }
-      console.log(payload);
+      // #endregion
+      // #region fetch for Patch
       fetch('http://localhost:3000/reimbursements', {
         method: 'PATCH',
         headers: {
@@ -432,10 +356,10 @@ function FMViewMaker() {
         body: JSON.stringify(payload)
       }).then((res) => res.json())
         .then(function (data) {
-          while (display.firstChild) {
+          while (display.firstChild) { // clear display
             display.removeChild(display.firstChild);
           }
-          for (var key in data) {
+          for (var key in data) { // print object element to display
             let a = document.createElement('p');
             a.innerText = data[key] + ' ' + key;
             display.appendChild(a);
@@ -446,15 +370,12 @@ function FMViewMaker() {
       main.innerText =
         `In the display port is your new Reimbursement, ${clientInfo.firstName}.`;
     });
+    // #endregion
   });
 
+  // Get all users
   searchAllUsers.addEventListener("click", function () {
-    while (display.firstChild) {
-      display.removeChild(display.firstChild);
-    }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
+    removeBody();
     fetch('http://localhost:3000/users', {
       method: 'GET',
       headers: {
@@ -466,7 +387,7 @@ function FMViewMaker() {
           display.removeChild(display.firstChild);
         }
         for (var key in data) {
-          for (var keyx in data[key]) {
+          for (var keyx in data[key]) { // for loop in for loop, one for list of objects, 2nd for objects in that list
             let a = document.createElement('p');
             a.innerText = data[key][keyx] + ' ' + keyx;
             display.appendChild(a);
@@ -479,42 +400,47 @@ function FMViewMaker() {
       `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
   });
 
+  // Get all reimbursements
   searchAllReimS.addEventListener("click", function () {
-    while (display.firstChild) {
-      display.removeChild(display.firstChild);
-    }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
-
+    removeBody();
+    // #region inputs and submitter
     var input = document.createElement("input");
     input.setAttribute("id", "input");
-    // drop down menu for this one
     input.setAttribute("type", "number");
+    var inputLabel = document.createElement('label');
+    inputLabel.setAttribute('for', 'input');
+    inputLabel.innerText = '#';
+    main.appendChild(inputLabel);
     main.appendChild(input);
 
     var typing = document.createElement("input");
     typing.setAttribute("id", "typing");
     // If 0, author, 1 is status
+    // SHOULD MAKE A DROP MENU
     typing.setAttribute("type", "number");
+    var typingLabel = document.createElement('label');
+    typingLabel.setAttribute('for', 'typing');
+    typingLabel.innerText = '0 for user, 1 for status';
+    main.appendChild(typingLabel);
     main.appendChild(typing);
 
     var submitter = document.createElement("button");
     submitter.setAttribute("id", "submitter");
     submitter.innerText = "Submit";
     main.appendChild(submitter);
+    // #endregion
 
     submitter.addEventListener("click", function () {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
       }
       var url = 'http://localhost:3000/reimbursements/';
-      if (document.getElementById('typing')['value'] == 0) {
-        url = url + 'author/userId/' + document.getElementById('input')['value'];
+      if (document.getElementById('typing')['value'] == 0) { // if you want by user ID
+        url = url + 'author/userId/' + document.getElementById('input')['value']; // specify URL
       } else {
-        url = url + 'status/' + document.getElementById('input')['value'];
+        url = url + 'status/' + document.getElementById('input')['value']; // find by status
       }
-      console.log(url);
+      // #region fetch command
       fetch(url, {
         method: 'GET',
         headers: {
@@ -525,8 +451,8 @@ function FMViewMaker() {
           while (display.firstChild) {
             display.removeChild(display.firstChild);
           }
-          for (var key in data) {
-            for (var keyx in data[key]) {
+          for (var key in data) { // for loop of objects
+            for (var keyx in data[key]) { // for loop to display objects in objects
               let a = document.createElement('p');
               a.innerText = data[key][keyx] + ' ' + keyx;
               display.appendChild(a);
@@ -535,6 +461,7 @@ function FMViewMaker() {
           console.log(data);
         })
         .catch((err) => console.log(err));
+      // #endregion
       main.innerText =
         `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
     });
@@ -542,15 +469,13 @@ function FMViewMaker() {
 }
 
 function adminViewMaker() {
-  while (display.firstChild) {
-    display.removeChild(display.firstChild);
-  }
+  // #region clear all
+  removeBody();
   while (navBar.firstChild) {
     navBar.removeChild(navBar.firstChild);
   }
-  while (main.firstChild) {
-    main.removeChild(main.firstChild);
-  }
+  // #endregion
+  // #region making admin view
   var user = document.createElement("button");
   user.setAttribute("id", "UserInfo");
   user.innerText = "Your Information";
@@ -565,168 +490,87 @@ function adminViewMaker() {
   userUpd8.setAttribute("id", "userUpd8");
   userUpd8.innerText = "Update User";
   navBar.appendChild(userUpd8);
+  // #endregion
 
   main.innerText = `Welcome ${clientInfo.firstName}, please select an option from the nav bar`;
 
+  // When user clicks for their own information
   user.addEventListener("click", function () {
-    while (display.firstChild) {
-      display.removeChild(display.firstChild);
-    }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
-    var url = new URL('http://localhost:3000/users/');
-    var url = url + clientInfo.iD;
-
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    }).then((res) => res.json())
-      .then(function (data) {
-        while (display.firstChild) {
-          display.removeChild(display.firstChild);
-        }
-        /*for (var key in data) {
-          console.log(key);
-        }*/ // can use this code to view keys in ANY object if you don't already know em
-        for (var key in data) {
-          let a = document.createElement('p');
-          a.innerText = data[key] + ' ' + key;
-          display.appendChild(a);
-        }
-        console.log(data);
-      })
-      .catch((err) => console.log(err));
-    main.innerText =
-      `In the display port is your information at this company, ${clientInfo.firstName}.`;
+    getSelf();
   });
-
+  // When user clicks to make a reimbursement
   submitReim.addEventListener("click", function () {
-    while (display.firstChild) {
-      display.removeChild(display.firstChild);
-    }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
-    /* var postReim = document.createElement('form');
-        main.appendChild(postReim);
-        form forces page restart, not ideal for a one page app*/
-    var amount = document.createElement("input");
-    amount.setAttribute("id", "amount");
-    amount.setAttribute("type", "number");
-    amount.setAttribute("placeholder", "123.45");
-    main.appendChild(amount);
-    var description = document.createElement("input");
-    description.setAttribute("id", "description");
-    description.setAttribute("type", "text");
-    description.setAttribute(
-      "placeholder",
-      "Describe the purpose of your reimbursement."
-    );
-    main.appendChild(description);
-
-    // rType should be a drop-menu list selector
-    var rType = document.createElement("input");
-    rType.setAttribute("id", "rType");
-    rType.setAttribute("type", "text");
-    rType.setAttribute(
-      "placeholder",
-      "Put a number."
-    );
-    main.appendChild(rType);
-
-    var submitter = document.createElement("button");
-    submitter.setAttribute("id", "submitter");
-    submitter.innerText = "Submit";
-    main.appendChild(submitter);
-
-    submitter.addEventListener("click", function () {
-      while (display.firstChild) {
-        display.removeChild(display.firstChild);
-      }
-      fetch('http://localhost:3000/reimbursements', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          id: 0,
-          author: clientInfo.iD,
-          amount: document.getElementById('amount')['value'],
-          description: document.getElementById('description')['value'],
-          type: document.getElementById('rType')['value']
-        })
-      }).then((res) => res.json())
-        .then(function (data) {
-          while (display.firstChild) {
-            display.removeChild(display.firstChild);
-          }
-          for (var key in data) {
-            let a = document.createElement('p');
-            a.innerText = data[key] + ' ' + key;
-            display.appendChild(a);
-          }
-          console.log(data);
-        })
-        .catch((err) => console.log(err));
-      main.innerText =
-        `In the display port is your new Reimbursement, ${clientInfo.firstName}.`;
-    });
+    makeReim();
   });
 
   userUpd8.addEventListener("click", function () {
-    while (display.firstChild) {
-      display.removeChild(display.firstChild);
-    }
-    while (main.firstChild) {
-      main.removeChild(main.firstChild);
-    }
+    removeBody();
+    // #region make inputs and submit
     var useRid = document.createElement("input");
     useRid.setAttribute("id", "iD");
     useRid.setAttribute("type", "number");
-    useRid.setAttribute("placeholder", "UserId");
+    var useRidLabel = document.createElement('label');
+    useRidLabel.setAttribute('for', 'iD');
+    useRidLabel.innerText = 'User ID';
+    main.appendChild(useRidLabel);
     main.appendChild(useRid);
     var userName = document.createElement("input");
     userName.setAttribute("id", "text");
     userName.setAttribute("type", "username");
-    userName.setAttribute("placeholder", "Username");
+    var usernameLabel = document.createElement('label');
+    usernameLabel.setAttribute('for', 'username');
+    usernameLabel.innerText = 'Username';
+    main.appendChild(usernameLabel);
     main.appendChild(userName);
     var password = document.createElement("input");
     password.setAttribute("id", "password");
     password.setAttribute("type", "password");
-    password.setAttribute("placeholder", "Password");
+    var passwordLabel = document.createElement('label');
+    passwordLabel.setAttribute('for', 'password');
+    passwordLabel.innerText = 'Password';
+    main.appendChild(passwordLabel);
     main.appendChild(password);
     var firstName = document.createElement("input");
     firstName.setAttribute("id", "firstName");
     firstName.setAttribute("type", "text");
-    firstName.setAttribute("placeholder", "First Name");
+    var firstNameLabel = document.createElement('label');
+    firstNameLabel.setAttribute('for', 'firstName');
+    firstNameLabel.innerText = 'First Name';
+    main.appendChild(firstNameLabel);
     main.appendChild(firstName);
     var lastName = document.createElement("input");
     lastName.setAttribute("id", "lastName");
     lastName.setAttribute("type", "text");
-    lastName.setAttribute("placeholder", "Last Name");
+    var lastNameLabel = document.createElement('label');
+    lastNameLabel.setAttribute('for', 'lastName');
+    lastNameLabel.innerText = 'Last Name';
+    main.appendChild(lastNameLabel);
     main.appendChild(lastName);
     var emailAdd = document.createElement("input");
     emailAdd.setAttribute("id", "emailAdd");
     emailAdd.setAttribute("type", "text");
-    emailAdd.setAttribute("placeholder", "Abc123@example.com");
+    var emailAddLabel = document.createElement('label');
+    emailAddLabel.setAttribute('for', 'emailAdd');
+    emailAddLabel.innerText = 'Email';
+    main.appendChild(amountLabel);
     main.appendChild(emailAdd);
 
     var submitter = document.createElement("button");
     submitter.setAttribute("id", "submitter");
     submitter.innerText = "Submit";
     main.appendChild(submitter);
+    // #endregion
 
+    // when admin clicks submit
     submitter.addEventListener("click", function () {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
       }
+      // #region admin making update request payload
       let userId = document.getElementById('iD')['value'];
-      let payload = { iD: parseInt(userId) };
-      let usernam = document.getElementById('text')['value'];
-      if (usernam != '') { payload.userName = usernam; }
+      let payload = { iD: parseInt(userId) }; // info that must be in there, initialize payload object
+      let usernam = document.getElementById('text')['value']; // get value from input
+      if (usernam != '') { payload.userName = usernam; } // if null, it doesn't get added to payload object
       let pass = document.getElementById('password')['value'];
       if (pass != '') { payload.passWord = pass; }
       let firstname = document.getElementById('firstName')['value'];
@@ -735,15 +579,16 @@ function adminViewMaker() {
       if (lastname != '') { payload.lastName = lastname; }
       let email = document.getElementById('emailAdd')['value'];
       if (email != '') { payload.email = email; }
-      console.log(payload);
+      // #endregion
+      // #region fetch request and results
       fetch('http://localhost:3000/users', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload)
-      }).then((res) => res.json())
-        .then(function (data) {
+        body: JSON.stringify(payload) // turn object into readable JSON
+      }).then((res) => res.json()) // get results
+        .then(function (data) { // data is readable results
           while (display.firstChild) {
             display.removeChild(display.firstChild);
           }
@@ -755,6 +600,7 @@ function adminViewMaker() {
           console.log(data);
         })
         .catch((err) => console.log(err));
+      // #endregion
       main.innerText =
         `In the display port is the edited User, ${clientInfo.firstName}.`;
     });
