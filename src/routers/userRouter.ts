@@ -21,10 +21,15 @@ usersRouter.get('/:userId',
         response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
-    const id = parseInt(request.params.userId, 10);
-    const user: User = await usersService.getUserId(id);
-
-    response.json(user);
+        try {
+            const id = parseInt(request.params.userId, 10);
+            const user: User = await usersService.getUserId(id);
+            response.json(user);
+            return;
+        } catch (error) {
+            response.status(400).json('Bad inputs');
+            return;
+        }
     }
 });
 
@@ -40,11 +45,14 @@ async (request: Request, response: Response) => {
         response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
-    const patch: User = request.body;
-
-    const patchedInv: User = await usersService.updateUser(patch);
-
-    response.json(patchedInv);
+    try {
+        const patch: User = request.body;
+        const patchedInv: User = await usersService.updateUser(patch);
+        response.json(patchedInv);
+        return;
+    } catch {
+        response.status(400).json('Bad inputs');
+     }
     }
 });
 
@@ -59,8 +67,12 @@ usersRouter.get('', async (request: Request, response: Response) => {
         response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
-    const users = await usersService.getAllUsers();
-    response.send(users);
+    try {
+        const users = await usersService.getAllUsers();
+        response.send(users);
+    } catch(error) {
+        response.status(400).json('Bad inputs');
+    }
     }
 });
 

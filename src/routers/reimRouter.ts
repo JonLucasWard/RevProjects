@@ -21,11 +21,16 @@ reimRouter.get('/status/:statusId', async (request: Request, response: Response)
         response.status(401).json('You are not authorized for this operation!');
         return;
     } else { // user is allow to use this function
-    const statusId = request.params && parseInt(request.params.statusId, 10);
-    // if request.params doesn't work, use parseInt, pass the value to the next method
-    const refunds = await reimbursementService.getReimbursementByStatus(statusId);
-    response.status(200).send(refunds);
-    return;
+    try{
+        const statusId = request.params && parseInt(request.params.statusId, 10);
+        // if request.params doesn't work, use parseInt, pass the value to the next method
+        const refunds = await reimbursementService.getReimbursementByStatus(statusId);
+        response.status(200).send(refunds);
+        return;
+    } catch (error) {
+        response.status(400).send('Bad inputs');
+        return;
+    }
     }
 });
 
@@ -40,9 +45,14 @@ reimRouter.get('/author/userId/:userId', async (request: Request, response: Resp
         response.status(401).json('You are not authorized for this operation!');
         return;
     } else {
-    const userId = request.params && parseInt(request.params.userId, 10);
-    const refunds = await reimbursementService.getReimbursementByUserId(userId);
-    response.status(200).send(refunds);
+    try {
+        const userId = request.params && parseInt(request.params.userId, 10);
+        const refunds = await reimbursementService.getReimbursementByUserId(userId);
+        response.status(200).send(refunds);
+    } catch {
+        response.status(400).send('Bad inputs');
+        return;
+    }
     }
 });
 
@@ -55,9 +65,14 @@ reimRouter.post('',
         response.json('Please login to access this information!');
         return;
     }
-    const newReim: Reimbursement = await reimbursementService.addReimbursement(request.body);
-    console.log(newReim);
-    response.status(202).json(newReim);
+    try{
+        const newReim: Reimbursement = await reimbursementService.addReimbursement(request.body);
+        console.log(newReim);
+        response.status(202).json(newReim);
+    } catch (error) {
+        response.json('Bad inputs');
+        return;
+    }
 });
 
 /**
@@ -72,11 +87,16 @@ reimRouter.patch('',
             response.status(401).json('You are not authorized for this operation!');
             return;
         } else {
-        const patch: Reimbursement = request.body;
+        try {
+            const patch: Reimbursement = request.body;
 
-        const patchedReimbursement: Reimbursement = await reimbursementService.editReimbursement(patch);
+            const patchedReimbursement: Reimbursement = await reimbursementService.editReimbursement(patch);
 
-        response.json(patchedReimbursement);
+            response.json(patchedReimbursement);
+        } catch {
+            response.status(400).json('Bad inputs');
+            return;
+        }
     }
 });
 

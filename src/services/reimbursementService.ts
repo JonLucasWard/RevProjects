@@ -56,8 +56,7 @@ export async function editReimbursement(patch: Reimbursement) {
     };
 
     const result = await db.query(`UPDATE reimbursements SET dateresolved = NOW(), description = $1, resolver = $2,
-    status = $3 WHERE id = $4 RETURNING id, author, amount, datesubmitted, dateresolved, description,
-    resolver, status, type;`,
+    status = $3 WHERE id = $4 RETURNING *;`,
             [newState.description, newState.resolver, newState.status, patch.id]);
 
     return result.rows[0];
