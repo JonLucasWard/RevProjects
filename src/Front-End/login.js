@@ -6,7 +6,8 @@ display = document.getElementById("display");
 logout = document.getElementById("logout");
 title = document.getElementById("title"); // I forgot to change this to change views, derp
 login = document.getElementById("Login");
-clientInfo = {};
+clientInfo = {}; // Pass in normal user info to this, use as normal
+authorizer = {}; // pass in Bearer + ' ' + <token> to this, use as another header
 // #endregion
 
 // give functionality to login button
@@ -221,6 +222,40 @@ function makeReim() {
   });
 }
 
+function getYourReims() {
+  removeBody();
+  var url = new URL('http://localhost:3000/reimbursements/author/userId/');
+  var url = url + clientInfo.iD;
+
+  fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  }).then((res) => {
+    if (!res.ok) {
+      res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+    } else {
+      return res.json();
+    }
+  })
+    .then(function (data) {
+      while (display.firstChild) {
+        display.removeChild(display.firstChild);
+      }
+      for (var key in data) {
+        for (var keyx in data[key]) { // for loop in for loop, one for list of objects, 2nd for objects in that list
+          let a = document.createElement('p');
+          a.innerText = data[key][keyx] + ' ' + keyx;
+          display.appendChild(a);
+        }
+      }
+    })
+    .catch((err) => console.log(err));
+  main.innerText =
+    `In the display port is your information at this company, ${clientInfo.firstName}.`;
+}
+
 function userViewMaker() {
   // #region clear body
   while (navBar.firstChild) {
@@ -237,6 +272,10 @@ function userViewMaker() {
   submitReim.setAttribute("id", "submitReim");
   submitReim.innerText = "Submit Reimbursement";
   navBar.appendChild(submitReim);
+  var getYoReims = document.createElement('button')
+  getYoReims.setAttribute('id', 'getYoReims');
+  getYoReims.innerText = "Get Your Reims";
+  navBar.appendChild(getYoReims);
   // #endregion
   main.innerText = `Welcome ${clientInfo.firstName}, please select an option from the nav bar`;
 
@@ -247,6 +286,10 @@ function userViewMaker() {
   // When user clicks to make a reimbursement
   submitReim.addEventListener("click", function () {
     makeReim();
+  });
+
+  getYoReims.addEventListener('click', function () {
+    getYourReims();
   });
 }
 
@@ -262,6 +305,11 @@ function FMViewMaker() {
   user.setAttribute("id", "UserInfo");
   user.innerText = "Get Your Info";
   navBar.appendChild(user);
+
+  var getYoReims = document.createElement('button')
+  getYoReims.setAttribute('id', 'getYoReims');
+  getYoReims.innerText = "Get Your Reims";
+  navBar.appendChild(getYoReims);
 
   var userget = document.createElement('button');
   userget.setAttribute("id", "UserGet");
@@ -294,6 +342,10 @@ function FMViewMaker() {
   // When user clicks for their own information
   user.addEventListener("click", function () {
     getSelf();
+  });
+
+  getYoReims.addEventListener('click', function () {
+    getYourReims();
   });
 
   userget.addEventListener('click', function () {
@@ -580,6 +632,11 @@ function adminViewMaker() {
   submitReim.innerText = "Submit Reimbursement";
   navBar.appendChild(submitReim);
 
+  var getYoReims = document.createElement('button')
+  getYoReims.setAttribute('id', 'getYoReims');
+  getYoReims.innerText = "Get Your Reims";
+  navBar.appendChild(getYoReims);
+
   var userUpd8 = document.createElement("button");
   userUpd8.setAttribute("id", "userUpd8");
   userUpd8.innerText = "Update User";
@@ -595,6 +652,10 @@ function adminViewMaker() {
   // When user clicks to make a reimbursement
   submitReim.addEventListener("click", function () {
     makeReim();
+  });
+
+  getYoReims.addEventListener('click', function () {
+    getYourReims();
   });
 
   userUpd8.addEventListener("click", function () {
