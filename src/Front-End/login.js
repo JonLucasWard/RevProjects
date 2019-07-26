@@ -30,10 +30,8 @@ function loginMaker() {
       }
     }) // receive and parse the response
       .then(async function (data) { // data from the resulting response
-        authorizer = data.token;
-        console.log(authorizer);
-        await getToken();
-        console.log(clientInfo); // push data into global variable object
+        authorizer = data.token; // pass token to auth variable on client
+        await getToken(); // must be await so that the program pauses for clientInfo to update
         // clean up display if something is there.
         while (display.firstChild) {
           display.removeChild(display.firstChild);
@@ -55,11 +53,11 @@ function loginMaker() {
   });
 }
 
-async function getToken() {
+async function getToken() { //a fetch to be nested in login, first fetch is to get token, 2nd is to get user info
   await fetch('http://localhost:3000/login', { // call to login
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${authorizer}`,
+      'Authorization': `Bearer ${authorizer}`, // token must be in header
       'Content-Type': 'application/json'
     }
   }).then((res) => {
@@ -70,7 +68,7 @@ async function getToken() {
     }
   }) // receive and parse the response
     .then(function (data) { // data from the resulting response
-      clientInfo = data.user;
+      clientInfo = data.user; // set clientInfo, no need to run this function again
     });
 }
 
@@ -247,6 +245,7 @@ function makeReim() {
   });
 }
 
+//for user to get their own list of reimbursements
 function getYourReims() {
   removeBody();
   var url = new URL('http://localhost:3000/reimbursements/author/userId/');
