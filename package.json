@@ -4,7 +4,7 @@
   "description": "Create a reimbursement data-base that can communicate between data server and users.",
   "main": "generalInfo.js",
   "scripts": {
-    "start": "ts-node src/App.ts",
+    "start": "nodemon src/App.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jonathan Ward",

@@ -9,7 +9,7 @@ BUT, our small data set doesn't need this functionality yet. And adding it is of
 
 Password hashing was literally a 2 lines.
 
-JSON web tokens instead of session storage...
+JSON web tokens are in, stored on client side but server uses it.
 
-Submitting receipts... AWS S3 buckets and AWS Access Keys...
+Not going to do receipt submitting, need to catch up on React and Redux
 
