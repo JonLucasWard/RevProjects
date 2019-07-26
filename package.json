@@ -4,13 +4,14 @@
   "description": "Create a reimbursement data-base that can communicate between data server and users.",
   "main": "generalInfo.js",
   "scripts": {
-    "start": "ts-node src/App.ts",
+    "start": "nodemon src/App.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jonathan Ward",
   "license": "ISC",
   "dependencies": {
     "@types/express": "^4.17.0",
+    "@types/jsonwebtoken": "^8.3.2",
     "@types/node": "^12.6.2",
     "@types/pg": "^7.4.14",
     "body-parser": "^1.19.0",
@@ -19,6 +20,7 @@
     "express": "^4.17.1",
     "express-session": "^1.16.2",
     "jsonwebtoken": "^8.5.1",
+    "nodemon": "^1.19.1",
     "pg": "^7.11.0"
   }
 }
