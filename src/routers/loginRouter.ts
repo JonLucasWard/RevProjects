@@ -77,6 +77,18 @@ loginRouter.post("", async (request: Request, response: Response) => {
     }
 });
 
+loginRouter.get('', verifyToken, async (req: any, response: Response) => {
+    jwt.verify(req.token, 'secretkey', async (err, authData) => {
+        if (err) {
+            response.status(401).send('Please login to access this information!');
+            return;
+        } else {
+            response.status(200).send(authData);
+            return;
+        }
+    });
+});
+
 // format of token
 // Authorization: Bearer <token>
 export function verifyToken(req, res, next) {

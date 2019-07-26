@@ -7,7 +7,7 @@ logout = document.getElementById("logout");
 title = document.getElementById("title"); // I forgot to change this to change views, derp
 login = document.getElementById("Login");
 clientInfo = {}; // Pass in normal user info to this, use as normal
-authorizer = {}; // pass in Bearer + ' ' + <token> to this, use as another header
+authorizer = ''; // pass in Bearer + ' ' + <token> to this, use as another header
 // #endregion
 
 // give functionality to login button
@@ -29,8 +29,11 @@ function loginMaker() {
         return res.json(); //return as normal if things are good
       }
     }) // receive and parse the response
-      .then(function (data) { // data from the resulting response
-        clientInfo = data; // push data into global variable object
+      .then(async function (data) { // data from the resulting response
+        authorizer = data.token;
+        console.log(authorizer);
+        await getToken();
+        console.log(clientInfo); // push data into global variable object
         // clean up display if something is there.
         while (display.firstChild) {
           display.removeChild(display.firstChild);
@@ -52,6 +55,25 @@ function loginMaker() {
   });
 }
 
+async function getToken() {
+  await fetch('http://localhost:3000/login', { // call to login
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${authorizer}`,
+      'Content-Type': 'application/json'
+    }
+  }).then((res) => {
+    if (!res.ok) { // check if the response is under 400 (not an error)
+      res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+    } else { //^IF IZ BAD! You must PROMISE to get the error which runs AFTER the fetch, otherwise the response is LOCKED!
+      return res.json(); //return as normal if things are good
+    }
+  }) // receive and parse the response
+    .then(function (data) { // data from the resulting response
+      clientInfo = data.user;
+    });
+}
+
 // build login functionality
 loginMaker();
 
@@ -69,6 +91,7 @@ logout.addEventListener("click", function () {
   }
   // #endregion
   // #region Remake login
+  authorizer = '';
   var introPara = document.createElement("p");
   introPara.innerText = "Please log in.";
   main.appendChild(introPara);
@@ -119,7 +142,8 @@ function getSelf() {
   fetch(url, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authorizer}`
     },
   }).then((res) => {
     if (!res.ok) {
@@ -190,7 +214,8 @@ function makeReim() {
     fetch('http://localhost:3000/reimbursements', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authorizer}`
       },
       body: JSON.stringify({
         id: 0,
@@ -230,7 +255,8 @@ function getYourReims() {
   fetch(url, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authorizer}`
     },
   }).then((res) => {
     if (!res.ok) {
@@ -372,7 +398,8 @@ function FMViewMaker() {
       fetch(url, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authorizer}`
         },
       }).then((res) => {
         if (!res.ok) {
@@ -479,7 +506,8 @@ function FMViewMaker() {
       fetch('http://localhost:3000/reimbursements', {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authorizer}`
         },
         body: JSON.stringify(payload)
       }).then((res) => {
@@ -513,7 +541,8 @@ function FMViewMaker() {
     fetch('http://localhost:3000/users', {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authorizer}`
       },
     }).then((res) => {
       if (!res.ok) {
@@ -584,7 +613,8 @@ function FMViewMaker() {
       fetch(url, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authorizer}`
         },
       }).then((res) => {
         if (!res.ok) {
@@ -739,7 +769,8 @@ function adminViewMaker() {
       fetch('http://localhost:3000/users', {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authorizer}`
         },
         body: JSON.stringify(payload) // turn object into readable JSON
       }).then((res) => {
