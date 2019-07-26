@@ -18,7 +18,7 @@ body{ /*center page structure*/
 header{ /*top page structure*/
 	display: flex; /* elements in it can flex and move naturally */
 	flex-direction: column; /* elements are stacked like pancakes */
-	background-color: blue;
+	background-color: skyblue;
 	justify-content: space-evenly; /* elements are nicely spaced */
 	align-items: center; /* elements are centered */
 	height: 20vh; /* it will try to take up 20% of the view display */
@@ -54,10 +54,10 @@ div{ /*general page structure*/
 	flex-direction: column;
 	background-color: white;
 	width: 100vw;
-	min-height: 70vh; /* this takes up 70% of the view port at MINIMUM (should be 100% now */
+	min-height: 68vh; /* this takes up 70% of the view port at MINIMUM (should be 100% now */
 }
 #main{ /*for inputting, intended to take up only as much as it needs*/
-	background-color: green;
+	background-color: orange;
 	align-content: center;
 	justify-content: space-evenly;
 	min-height: 50px;
@@ -65,6 +65,8 @@ div{ /*general page structure*/
 }
 #display{
 	display: flex;
+	box-sizing: border-box;
+	border: 2px solid black;
 	background-color: orange;
 	align-content: center;
 	justify-content: space-evenly;
@@ -85,6 +87,7 @@ input{ /*can be a lot of things, check document details*/
 	align-content: center;
 	box-sizing: border-box;
 	border: 1px solid black;
+	margin: 5px;
 	min-width: 50px;
 	max-width: 1000px;
 	min-height: 30px;
@@ -96,6 +99,7 @@ input{ /*can be a lot of things, check document details*/
 button{ /*various buttons*/
 	display: inline-block; /* this and NO width, allows for text between tags to be centered */
 	box-sizing: border-box;
+	margin: 5px;
 	border: 1px solid black;
 	background-color: forest;
 	min-width: 50px;

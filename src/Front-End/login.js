@@ -6,7 +6,8 @@ display = document.getElementById("display");
 logout = document.getElementById("logout");
 title = document.getElementById("title"); // I forgot to change this to change views, derp
 login = document.getElementById("Login");
-clientInfo = {};
+clientInfo = {}; // Pass in normal user info to this, use as normal
+authorizer = ''; // pass in Bearer + ' ' + <token> to this, use as another header
 // #endregion
 
 // give functionality to login button
@@ -28,8 +29,11 @@ function loginMaker() {
         return res.json(); //return as normal if things are good
       }
     }) // receive and parse the response
-      .then(function (data) { // data from the resulting response
-        clientInfo = data; // push data into global variable object
+      .then(async function (data) { // data from the resulting response
+        authorizer = data.token;
+        console.log(authorizer);
+        await getToken();
+        console.log(clientInfo); // push data into global variable object
         // clean up display if something is there.
         while (display.firstChild) {
           display.removeChild(display.firstChild);
@@ -51,6 +55,25 @@ function loginMaker() {
   });
 }
 
+async function getToken() {
+  await fetch('http://localhost:3000/login', { // call to login
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${authorizer}`,
+      'Content-Type': 'application/json'
+    }
+  }).then((res) => {
+    if (!res.ok) { // check if the response is under 400 (not an error)
+      res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+    } else { //^IF IZ BAD! You must PROMISE to get the error which runs AFTER the fetch, otherwise the response is LOCKED!
+      return res.json(); //return as normal if things are good
+    }
+  }) // receive and parse the response
+    .then(function (data) { // data from the resulting response
+      clientInfo = data.user;
+    });
+}
+
 // build login functionality
 loginMaker();
 
@@ -68,6 +91,7 @@ logout.addEventListener("click", function () {
   }
   // #endregion
   // #region Remake login
+  authorizer = '';
   var introPara = document.createElement("p");
   introPara.innerText = "Please log in.";
   main.appendChild(introPara);
@@ -118,7 +142,8 @@ function getSelf() {
   fetch(url, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authorizer}`
     },
   }).then((res) => {
     if (!res.ok) {
@@ -189,7 +214,8 @@ function makeReim() {
     fetch('http://localhost:3000/reimbursements', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authorizer}`
       },
       body: JSON.stringify({
         id: 0,
@@ -221,6 +247,41 @@ function makeReim() {
   });
 }
 
+function getYourReims() {
+  removeBody();
+  var url = new URL('http://localhost:3000/reimbursements/author/userId/');
+  var url = url + clientInfo.iD;
+
+  fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authorizer}`
+    },
+  }).then((res) => {
+    if (!res.ok) {
+      res.text().then(text => { responseText = Error(text); display.innerText = responseText; });
+    } else {
+      return res.json();
+    }
+  })
+    .then(function (data) {
+      while (display.firstChild) {
+        display.removeChild(display.firstChild);
+      }
+      for (var key in data) {
+        for (var keyx in data[key]) { // for loop in for loop, one for list of objects, 2nd for objects in that list
+          let a = document.createElement('p');
+          a.innerText = data[key][keyx] + ' ' + keyx;
+          display.appendChild(a);
+        }
+      }
+    })
+    .catch((err) => console.log(err));
+  main.innerText =
+    `In the display port is your information at this company, ${clientInfo.firstName}.`;
+}
+
 function userViewMaker() {
   // #region clear body
   while (navBar.firstChild) {
@@ -237,6 +298,10 @@ function userViewMaker() {
   submitReim.setAttribute("id", "submitReim");
   submitReim.innerText = "Submit Reimbursement";
   navBar.appendChild(submitReim);
+  var getYoReims = document.createElement('button')
+  getYoReims.setAttribute('id', 'getYoReims');
+  getYoReims.innerText = "Get Your Reims";
+  navBar.appendChild(getYoReims);
   // #endregion
   main.innerText = `Welcome ${clientInfo.firstName}, please select an option from the nav bar`;
 
@@ -247,6 +312,10 @@ function userViewMaker() {
   // When user clicks to make a reimbursement
   submitReim.addEventListener("click", function () {
     makeReim();
+  });
+
+  getYoReims.addEventListener('click', function () {
+    getYourReims();
   });
 }
 
@@ -262,6 +331,11 @@ function FMViewMaker() {
   user.setAttribute("id", "UserInfo");
   user.innerText = "Get Your Info";
   navBar.appendChild(user);
+
+  var getYoReims = document.createElement('button')
+  getYoReims.setAttribute('id', 'getYoReims');
+  getYoReims.innerText = "Get Your Reims";
+  navBar.appendChild(getYoReims);
 
   var userget = document.createElement('button');
   userget.setAttribute("id", "UserGet");
@@ -296,6 +370,10 @@ function FMViewMaker() {
     getSelf();
   });
 
+  getYoReims.addEventListener('click', function () {
+    getYourReims();
+  });
+
   userget.addEventListener('click', function () {
     removeBody();
     var userId = document.createElement('input');
@@ -320,7 +398,8 @@ function FMViewMaker() {
       fetch(url, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authorizer}`
         },
       }).then((res) => {
         if (!res.ok) {
@@ -427,7 +506,8 @@ function FMViewMaker() {
       fetch('http://localhost:3000/reimbursements', {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authorizer}`
         },
         body: JSON.stringify(payload)
       }).then((res) => {
@@ -461,7 +541,8 @@ function FMViewMaker() {
     fetch('http://localhost:3000/users', {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authorizer}`
       },
     }).then((res) => {
       if (!res.ok) {
@@ -532,7 +613,8 @@ function FMViewMaker() {
       fetch(url, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authorizer}`
         },
       }).then((res) => {
         if (!res.ok) {
@@ -580,6 +662,11 @@ function adminViewMaker() {
   submitReim.innerText = "Submit Reimbursement";
   navBar.appendChild(submitReim);
 
+  var getYoReims = document.createElement('button')
+  getYoReims.setAttribute('id', 'getYoReims');
+  getYoReims.innerText = "Get Your Reims";
+  navBar.appendChild(getYoReims);
+
   var userUpd8 = document.createElement("button");
   userUpd8.setAttribute("id", "userUpd8");
   userUpd8.innerText = "Update User";
@@ -595,6 +682,10 @@ function adminViewMaker() {
   // When user clicks to make a reimbursement
   submitReim.addEventListener("click", function () {
     makeReim();
+  });
+
+  getYoReims.addEventListener('click', function () {
+    getYourReims();
   });
 
   userUpd8.addEventListener("click", function () {
@@ -678,7 +769,8 @@ function adminViewMaker() {
       fetch('http://localhost:3000/users', {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authorizer}`
         },
         body: JSON.stringify(payload) // turn object into readable JSON
       }).then((res) => {
