@@ -4,36 +4,39 @@
  */
 import express, { Request, Response } from 'express';
 import User from '../models/users';
-import { Logger } from '../routers/loginRouter';
+import { Logger, verifyToken } from '../routers/loginRouter';
 import * as usersService from '../services/usersService';
 
-const {
-    sha256
-} = require("crypto-hash");
+const { sha256 } = require("crypto-hash");
 const usersRouter = express.Router();
+const jwt = require('jsonwebtoken');
 
 /**
  * allow a user to get another user's info. A user is allowed to get their own information
  */
-usersRouter.get('/:userId',
-    async (request: Request, response: Response) => {
-        if (!Logger.Username) {
-            response.status(402).send('Please login to access this information!');
-            return;
-        } else if (Logger.Role !== 2 && Logger.UserID !== parseInt(request.params.userId, 10)) {
-            response.status(401).send('You are not authorized for this operation!');
-            return;
-        } else {
-            try {
-                const id = parseInt(request.params.userId, 10);
-                const user: User = await usersService.getUserId(id);
-                response.json(user);
+usersRouter.get('/:userId', verifyToken,
+    async (req: any, res) => {
+        jwt.verify(req.token, 'secretkey', async (err, authData) => {
+            if (err) {
+                res.status(401).send('Please login to access this information!');
                 return;
-            } catch (error) {
-                response.status(400).send('Bad inputs');
-                return;
+            } else {
+                if (authData.user.role !== 2 && authData.user.iD !== parseInt(req.params.userId, 10)) {
+                    res.status(402).send('You are not authorized for this operation!');
+                } else {
+                    try {
+                        const id = parseInt(req.params.userId, 10);
+                        const user: User = await usersService.getUserId(id);
+                        res.json(user);
+                        console.log(authData);
+                        return;
+                    } catch (error) {
+                        res.status(400).send('Bad inputs');
+                        return;
+                    }
+                }
             }
-        }
+        });
     });
 
 /**
