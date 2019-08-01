@@ -784,8 +784,12 @@ function FMViewMaker() {
         })
         .catch((err) => console.log(err));
       // #endregion
-      main.innerText =
-        `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
+      if (!display.firstChild) {
+        main.innerText = 'There is no user with that ID.'
+      } else {
+        main.innerText =
+          `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
+      }
     });
   });
 }

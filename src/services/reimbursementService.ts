@@ -13,7 +13,7 @@ import db from '../util/pg-connector'; // To access the database at all
  */
 export async function addReimbursement(body) {
     const result = await db.query(`INSERT INTO reimbursements (author, amount, datesubmitted, description, status, type)
-    VALUES ($1, $2, NOW(), $3, 1, $4) RETURNING *`,
+    VALUES ($1, $2, NOW()::timestamp, $3, 1, $4) RETURNING *`,
         [body.author, body.amount, body.description, body.type]);
     // Comments about the structure of query and response data is addressed in the usersService file, this
     // is just more of the same.
@@ -57,7 +57,7 @@ export async function editReimbursement(patch: Reimbursement) {
         ...currentState, ...patch,
     };
 
-    const result = await db.query(`UPDATE reimbursements SET dateresolved = NOW(), description = $1, resolver = $2,
+    const result = await db.query(`UPDATE reimbursements SET dateresolved = NOW()::timestamp, description = $1, resolver = $2,
     status = $3 WHERE id = $4 RETURNING *;`,
         [newState.description, newState.resolver, newState.status, patch.id]);
 
