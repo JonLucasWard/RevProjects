@@ -51,9 +51,11 @@ usersRouter.patch('', verifyToken, async (req: any, res) => {
                 res.status(402).send('You are not authorized for this operation!');
             } else {
                 try {
-                    req.body.passWord = await sha256(
-                        req.body.passWord,
-                    );
+                    if (req.body.passWord) {
+                        req.body.passWord = await sha256(
+                            req.body.passWord,
+                        );
+                    }
                     const patch: User = req.body;
                     const patchedInv: User = await usersService.updateUser(patch);
                     res.json(patchedInv);
