@@ -268,14 +268,18 @@ function makeReim() {
         for (var key in data) {
           if (key == 'dateSubmitted') {
             y = document.createElement('caption');
-            y.innerText = data[key];
+            y.innerText = data[key].substring(0, 9);
             b.appendChild(y);
           }
           let a = document.createElement('tr');
           let column = document.createElement('td');
           let row = document.createElement('td');
           column.innerText = key.toUpperCase();
-          row.innerText = data[key];
+          if (key == 'dateSubmitted' || key == 'dateResolved') {
+            row.innerText = data[key].substring(0, 9);
+          } else {
+            row.innerText = data[key];
+          }
           b.appendChild(a);
           b.appendChild(column);
           b.appendChild(row);
@@ -289,6 +293,7 @@ function makeReim() {
 
 //for user to get their own list of reimbursements
 function getYourReims() {
+  Y
   removeBody();
   var url = new URL('http://localhost:3000/reimbursements/author/userId/');
   var url = url + clientInfo.iD;
@@ -316,14 +321,20 @@ function getYourReims() {
         for (var keyx in data[key]) { // for loop in for loop, one for list of objects, 2nd for objects in that list
           if (keyx == 'datesubmitted') {
             y = document.createElement('caption');
-            y.innerText = data[key][keyx];
+            y.innerText = data[key][keyx].substring(0, 9);
             b.appendChild(y);
           }
           let a = document.createElement('tr');
           let column = document.createElement('td');
           let row = document.createElement('td');
           column.innerText = keyx.toUpperCase();
-          row.innerText = data[key][keyx];
+          if (keyx == 'datesubmitted') {
+            row.innerText = data[key][keyx].substring(0, 9);
+          } else if (keyx == 'dateresolved' && data[key][keyx] != null) {
+            row.innerText = data[key][keyx].substring(0, 9);
+          } else {
+            row.innerText = data[key][keyx];
+          }
           b.appendChild(a);
           b.appendChild(column);
           b.appendChild(row);
@@ -409,7 +420,7 @@ function FMViewMaker() {
 
   var searchAllReimS = document.createElement("button");
   searchAllReimS.setAttribute("id", "searchAllReim");
-  searchAllReimS.innerText = "Search By Status";
+  searchAllReimS.innerText = "Search All Reims";
   navBar.appendChild(searchAllReimS);
 
   var searchAllUsers = document.createElement("button");
@@ -629,14 +640,18 @@ function FMViewMaker() {
           for (var key in data) {
             if (key == 'datesubmitted') {
               y = document.createElement('caption');
-              y.innerText = data[key];
+              y.innerText = data[key].substring(0, 9);
               b.appendChild(y);
             }
             let a = document.createElement('tr');
             let column = document.createElement('td');
             let row = document.createElement('td');
             column.innerText = key.toUpperCase();
-            row.innerText = data[key];
+            if (key == 'dateSubmitted' || key == 'dateResolved') {
+              row.innerText = data[key].substring(0, 9);
+            } else {
+              row.innerText = data[key];
+            }
             b.appendChild(a);
             b.appendChild(column);
             b.appendChild(row);
@@ -768,7 +783,7 @@ function FMViewMaker() {
             for (var keyx in data[key]) { // for loop in for loop, one for list of objects, 2nd for objects in that list
               if (keyx == 'datesubmitted') {
                 y = document.createElement('caption');
-                y.innerText = data[key][keyx];
+                y.innerText = data[key][keyx].substring(0, 9);
                 b.appendChild(y);
               }
               let a = document.createElement('tr');
@@ -776,20 +791,27 @@ function FMViewMaker() {
               let row = document.createElement('td');
               column.innerText = keyx.toUpperCase();
               row.innerText = data[key][keyx];
+              if (keyx == 'datesubmitted') {
+                row.innerText = data[key][keyx].substring(0, 9);
+              } else if (keyx == 'dateresolved') {
+                row.innerText = data[key][keyx].substring(0, 9);
+              } else {
+                row.innerText = data[key][keyx];
+              }
               b.appendChild(a);
               b.appendChild(column);
               b.appendChild(row);
             }
           }
+          if (!display.firstChild) {
+            main.innerText = 'There is no user with that ID.'
+          } else {
+            main.innerText =
+              `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
+          }
         })
         .catch((err) => console.log(err));
       // #endregion
-      if (!display.firstChild) {
-        main.innerText = 'There is no user with that ID.'
-      } else {
-        main.innerText =
-          `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
-      }
     });
   });
 }

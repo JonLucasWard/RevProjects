@@ -4,7 +4,7 @@
  */
 import express, { Request, Response } from 'express';
 import User from '../models/users';
-import { Logger, verifyToken } from '../routers/loginRouter';
+import { verifyToken } from '../routers/loginRouter';
 import * as usersService from '../services/usersService';
 
 const { sha256 } = require("crypto-hash");
@@ -27,7 +27,6 @@ usersRouter.get('/:userId', verifyToken, async (req: any, res) => {
                     const id = parseInt(req.params.userId, 10);
                     const user: User = await usersService.getUserId(id);
                     res.json(user);
-                    console.log(authData);
                     return;
                 } catch (error) {
                     res.status(400).send('Bad inputs');

@@ -126,8 +126,6 @@ export async function updateUser(patch: User) {
      * @currentState - old user information
      * @patch - new user information, will override old versions of the information.
      */
-    console.log(currentState);
-    console.log(patch);
     const newState = {
         ...currentState, ...patch,
     };

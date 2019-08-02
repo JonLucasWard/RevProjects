@@ -51,7 +51,6 @@ async function getReimbursementId(reimID): Promise<Reimbursement> {
  * @param patch - Passed information from the user will be matched to the reimbursement data structure and used
  */
 export async function editReimbursement(patch: Reimbursement) {
-    console.log(patch);
     const currentState = await getReimbursementId(patch.id);
     const newState = {
         ...currentState, ...patch,
