@@ -10,10 +10,10 @@ import { Pool } from 'pg'; // import the "Pool" code from 'pg'
  */
 const db = new Pool({
     database: 'postgres', // The database we want to access
-    host: process.env.DB_URL || 'localhost', // The server hosting said databse
-    password: process.env.DB_PASSWORD || 'password', // The password needed to access that database
+    host: 'localhost', // The server hosting said databse
+    password: 'password', // The password needed to access that database
     port: 5432, // The port that this connection should exist on (determined by database)
-    user: process.env.DB_USER || 'postgres', // The user information we are logging into the database with
+    user: 'postgres', // The user information we are logging into the database with
 });
 
 export default db; // export all information here for other files to use
