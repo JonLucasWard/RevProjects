@@ -14,13 +14,15 @@ const jwt = require('jsonwebtoken');
  * This function should give the user a list of reimbursements according to a given status.
  * Can only be done by finance managers (role 2)
  */
+// verify Token is called in as a first function to call before the callback function, it will check the user's token
+// and see if they're valid
 reimRouter.get('/status/:statusId', verifyToken, async (req: any, res) => {
-    jwt.verify(req.token, 'secretkey', async (err, authData) => {
-        if (err) {
+    jwt.verify(req.token, 'secretkey', async (err, authData) => { // authData is data from token
+        if (err) { // err is in case an error is passed from verifyToken
             res.status(401).send('Please login to access this information!');
             return;
         } else {
-            if (authData.user.role !== 2) {
+            if (authData.user.role !== 2) { // user object is nested in AuthData
                 res.status(402).send('You are not authorized for this operation!');
             } else {
                 try {

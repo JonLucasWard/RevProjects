@@ -30,10 +30,8 @@ function loginMaker() {
       }
     }) // receive and parse the response
       .then(async function (data) { // data from the resulting response
-        authorizer = data.token;
-        console.log(authorizer);
-        await getToken();
-        console.log(clientInfo); // push data into global variable object
+        authorizer = data.token; // pass token to auth variable on client
+        await getToken(); // must be await so that the program pauses for clientInfo to update
         // clean up display if something is there.
         while (display.firstChild) {
           display.removeChild(display.firstChild);
@@ -55,11 +53,11 @@ function loginMaker() {
   });
 }
 
-async function getToken() {
+async function getToken() { //a fetch to be nested in login, first fetch is to get token, 2nd is to get user info
   await fetch('http://localhost:3000/login', { // call to login
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${authorizer}`,
+      'Authorization': `Bearer ${authorizer}`, // token must be in header
       'Content-Type': 'application/json'
     }
   }).then((res) => {
@@ -70,7 +68,7 @@ async function getToken() {
     }
   }) // receive and parse the response
     .then(function (data) { // data from the resulting response
-      clientInfo = data.user;
+      clientInfo = data.user; // set clientInfo, no need to run this function again
     });
 }
 
@@ -91,14 +89,16 @@ logout.addEventListener("click", function () {
   }
   // #endregion
   // #region Remake login
+  document.getElementById('title').innerText = 'Reimbursement Login';
   authorizer = '';
-  var introPara = document.createElement("p");
+  var introPara = document.createElement("h1");
   introPara.innerText = "Please log in.";
   main.appendChild(introPara);
 
   var username = document.createElement("input");
   username.setAttribute("id", "text-box");
   username.setAttribute("type", "text");
+  username.required = true;
   var userLabel = document.createElement('label');
   userLabel.setAttribute('for', 'text-box');
   userLabel.innerText = 'Username';
@@ -108,6 +108,7 @@ logout.addEventListener("click", function () {
   var password = document.createElement("input");
   password.setAttribute("id", "passy");
   password.setAttribute("type", "password");
+  password.required = true;
   var passLabel = document.createElement('label');
   passLabel.setAttribute('for', 'passy');
   passLabel.innerText = 'Password';
@@ -156,13 +157,25 @@ function getSelf() {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
       }
+      let b = document.createElement('table');
+      display.appendChild(b);
       /*for (var key in data) {
         console.log(key);
       }*/ // can use this code to view keys in ANY object if you don't already know em
       for (var key in data) {
-        let a = document.createElement('p');
-        a.innerText = 'Your ' + key + ' is ' + data[key];
-        display.appendChild(a);
+        if (key == 'userName') {
+          y = document.createElement('caption');
+          y.innerText = data[key];
+          b.appendChild(y);
+        }
+        let a = document.createElement('tr');
+        let column = document.createElement('td');
+        let row = document.createElement('td');
+        column.innerText = key.toUpperCase();
+        row.innerText = data[key];
+        b.appendChild(a);
+        b.appendChild(column);
+        b.appendChild(row);
       }
     })
     .catch((err) => console.log(err));
@@ -178,6 +191,7 @@ function makeReim() {
   var amount = document.createElement("input");
   amount.setAttribute("id", "amount");
   amount.setAttribute("type", "number");
+  amount.required = true;
   var amountLabel = document.createElement('label');
   amountLabel.setAttribute('for', 'amount');
   amountLabel.innerText = 'Amount';
@@ -193,15 +207,29 @@ function makeReim() {
   main.appendChild(description);
 
   // rType should be a drop-menu list selector
-  var rType = document.createElement("input");
+  var rType = document.createElement("select");
   rType.setAttribute("id", "rType");
-  rType.setAttribute("type", "text");
+  var Lodge = document.createElement('option');
+  Lodge.setAttribute('value', 1);
+  Lodge.innerText = 'Lodging';
+  var Travel = document.createElement('option');
+  Travel.setAttribute('value', 2);
+  Travel.innerText = 'Travel';
+  var Food = document.createElement('option');
+  Food.setAttribute('value', 3);
+  Food.innerText = 'Food';
+  var Other = document.createElement('option');
+  Other.setAttribute('value', 4);
+  Other.innerText = 'Other';
   var rTypeLabel = document.createElement('label');
   rTypeLabel.setAttribute('for', 'rType');
   rTypeLabel.innerText = 'Type';
   main.appendChild(rTypeLabel);
   main.appendChild(rType);
-
+  rType.appendChild(Lodge);
+  rType.appendChild(Travel);
+  rType.appendChild(Food);
+  rType.appendChild(Other);
   var submitter = document.createElement("button");
   submitter.setAttribute("id", "submitter");
   submitter.innerText = "Submit";
@@ -235,10 +263,26 @@ function makeReim() {
         while (display.firstChild) {
           display.removeChild(display.firstChild);
         }
+        let b = document.createElement('table');
+        display.appendChild(b);
         for (var key in data) {
-          let a = document.createElement('p');
-          a.innerText = data[key] + ' ' + key;
-          display.appendChild(a);
+          if (key == 'dateSubmitted') {
+            y = document.createElement('caption');
+            y.innerText = data[key].substring(0, 9);
+            b.appendChild(y);
+          }
+          let a = document.createElement('tr');
+          let column = document.createElement('td');
+          let row = document.createElement('td');
+          column.innerText = key.toUpperCase();
+          if (key == 'dateSubmitted' || key == 'dateResolved') {
+            row.innerText = data[key].substring(0, 9);
+          } else {
+            row.innerText = data[key];
+          }
+          b.appendChild(a);
+          b.appendChild(column);
+          b.appendChild(row);
         }
       })
       .catch((err) => console.log(err));
@@ -247,7 +291,9 @@ function makeReim() {
   });
 }
 
+//for user to get their own list of reimbursements
 function getYourReims() {
+  Y
   removeBody();
   var url = new URL('http://localhost:3000/reimbursements/author/userId/');
   var url = url + clientInfo.iD;
@@ -270,10 +316,28 @@ function getYourReims() {
         display.removeChild(display.firstChild);
       }
       for (var key in data) {
+        let b = document.createElement('table');
+        display.appendChild(b);
         for (var keyx in data[key]) { // for loop in for loop, one for list of objects, 2nd for objects in that list
-          let a = document.createElement('p');
-          a.innerText = data[key][keyx] + ' ' + keyx;
-          display.appendChild(a);
+          if (keyx == 'datesubmitted') {
+            y = document.createElement('caption');
+            y.innerText = data[key][keyx].substring(0, 9);
+            b.appendChild(y);
+          }
+          let a = document.createElement('tr');
+          let column = document.createElement('td');
+          let row = document.createElement('td');
+          column.innerText = keyx.toUpperCase();
+          if (keyx == 'datesubmitted') {
+            row.innerText = data[key][keyx].substring(0, 9);
+          } else if (keyx == 'dateresolved' && data[key][keyx] != null) {
+            row.innerText = data[key][keyx].substring(0, 9);
+          } else {
+            row.innerText = data[key][keyx];
+          }
+          b.appendChild(a);
+          b.appendChild(column);
+          b.appendChild(row);
         }
       }
     })
@@ -290,6 +354,7 @@ function userViewMaker() {
   removeBody();
   // #endregion
   // #region make user page
+  document.getElementById.innerText = 'User View';
   var user = document.createElement("button")
   user.setAttribute("id", "UserInfo");
   user.innerText = "Your Information";
@@ -327,6 +392,7 @@ function FMViewMaker() {
   }
   // #endregion 
   // #region make options for new view
+  document.getElementById('title').innerText = 'FM View';
   var user = document.createElement("button");
   user.setAttribute("id", "UserInfo");
   user.innerText = "Get Your Info";
@@ -354,7 +420,7 @@ function FMViewMaker() {
 
   var searchAllReimS = document.createElement("button");
   searchAllReimS.setAttribute("id", "searchAllReim");
-  searchAllReimS.innerText = "Search By Status";
+  searchAllReimS.innerText = "Search All Reims";
   navBar.appendChild(searchAllReimS);
 
   var searchAllUsers = document.createElement("button");
@@ -379,6 +445,7 @@ function FMViewMaker() {
     var userId = document.createElement('input');
     userId.setAttribute("id", "userId");
     userId.setAttribute("type", "number");
+    userId.required = true;
     var userIdLabel = document.createElement('label');
     userIdLabel.setAttribute('for', 'userId');
     userIdLabel.innerText = 'ID #';
@@ -412,18 +479,30 @@ function FMViewMaker() {
           while (display.firstChild) {
             display.removeChild(display.firstChild);
           }
+          let b = document.createElement('table');
+          display.appendChild(b);
           /*for (var key in data) {
             console.log(key);
           }*/ // can use this code to view keys in ANY object if you don't already know em
           for (var key in data) {
-            let a = document.createElement('p');
-            a.innerText = 'Your ' + key + ' is ' + data[key];
-            display.appendChild(a);
+            if (key == 'userName') {
+              y = document.createElement('caption');
+              y.innerText = data[key];
+              b.appendChild(y);
+            }
+            let a = document.createElement('tr');
+            let column = document.createElement('td');
+            let row = document.createElement('td');
+            column.innerText = key.toUpperCase();
+            row.innerText = data[key];
+            b.appendChild(a);
+            b.appendChild(column);
+            b.appendChild(row);
           }
         })
         .catch((err) => console.log(err));
       main.innerText =
-        `In the display port is your information at this company, ${clientInfo.firstName}.`;
+        `In the display port is the employee's information at this company, ${clientInfo.firstName}.`;
     });
   });
 
@@ -439,6 +518,7 @@ function FMViewMaker() {
     var reimId = document.createElement('input');
     reimId.setAttribute("id", "reimId");
     reimId.setAttribute("type", "number");
+    reimId.required = true;
     var reimIdLabel = document.createElement('label');
     reimIdLabel.setAttribute('for', 'reimId');
     reimIdLabel.innerText = 'ID #';
@@ -458,27 +538,57 @@ function FMViewMaker() {
     description.setAttribute("type", "text");
     var descriptionLabel = document.createElement('label');
     descriptionLabel.setAttribute('for', 'description');
-    descriptionLabel.innerText = 'Amount';
+    descriptionLabel.innerText = 'Description';
     main.appendChild(descriptionLabel);
     main.appendChild(description);
 
     // rType and rStatus should be a drop-menu list selector
-    var rType = document.createElement("input");
+    var rType = document.createElement("select");
     rType.setAttribute("id", "rType");
-    rType.setAttribute("type", "number");
+    var Lodge = document.createElement('option');
+    Lodge.setAttribute('value', 1);
+    Lodge.innerText = 'Lodging';
+    var Travel = document.createElement('option');
+    Travel.setAttribute('value', 2);
+    Travel.innerText = 'Travel';
+    var Food = document.createElement('option');
+    Food.setAttribute('value', 3);
+    Food.innerText = 'Food';
+    var Other = document.createElement('option');
+    Other.setAttribute('value', 4);
+    Other.innerText = 'Other';
     var rTypeLabel = document.createElement('label');
     rTypeLabel.setAttribute('for', 'rType');
     rTypeLabel.innerText = 'Type';
     main.appendChild(rTypeLabel);
     main.appendChild(rType);
-    var rStatus = document.createElement("input");
+    rType.appendChild(Lodge);
+    rType.appendChild(Travel);
+    rType.appendChild(Food);
+    rType.appendChild(Other);
+    main.appendChild(rTypeLabel);
+    main.appendChild(rType);
+
+    var rStatus = document.createElement("select");
     rStatus.setAttribute("id", "rStatus");
     rStatus.setAttribute("type", "number");
+    var Pending = document.createElement('option');
+    Pending.setAttribute('value', 1);
+    Pending.innerText = 'Pending';
+    var Approved = document.createElement('option');
+    Approved.setAttribute('value', 2);
+    Approved.innerText = 'Approved';
+    var Denied = document.createElement('option');
+    Denied.setAttribute('value', 3);
+    Denied.innerText = 'Denied';
     var rStatusLabel = document.createElement('label');
     rStatusLabel.setAttribute('for', 'rStatus');
     rStatusLabel.innerText = 'Status';
     main.appendChild(rStatusLabel);
     main.appendChild(rStatus);
+    rStatus.appendChild(Pending);
+    rStatus.appendChild(Approved);
+    rStatus.appendChild(Denied);
 
     var submitter = document.createElement("button");
     submitter.setAttribute("id", "submitter");
@@ -501,6 +611,7 @@ function FMViewMaker() {
       if (rTy != '') { payload.type = parseInt(rTy); }
       let rSta = document.getElementById('rStatus')['value'];
       if (rSta != '') { payload.status = parseInt(rSta); }
+      console.log(payload);
       // #endregion
       // #region fetch for Patch
       fetch('http://localhost:3000/reimbursements', {
@@ -521,12 +632,30 @@ function FMViewMaker() {
           while (display.firstChild) { // clear display
             display.removeChild(display.firstChild);
           }
-          for (var key in data) { // print object element to display
-            let a = document.createElement('p');
-            a.innerText = data[key] + ' ' + key;
-            display.appendChild(a);
+          let b = document.createElement('table');
+          display.appendChild(b);
+          /*for (var key in data) {
+            console.log(key);
+          }*/ // can use this code to view keys in ANY object if you don't already know em
+          for (var key in data) {
+            if (key == 'datesubmitted') {
+              y = document.createElement('caption');
+              y.innerText = data[key].substring(0, 9);
+              b.appendChild(y);
+            }
+            let a = document.createElement('tr');
+            let column = document.createElement('td');
+            let row = document.createElement('td');
+            column.innerText = key.toUpperCase();
+            if (key == 'dateSubmitted' || key == 'dateResolved') {
+              row.innerText = data[key].substring(0, 9);
+            } else {
+              row.innerText = data[key];
+            }
+            b.appendChild(a);
+            b.appendChild(column);
+            b.appendChild(row);
           }
-          console.log(data);
         })
         .catch((err) => console.log(err));
       main.innerText =
@@ -556,17 +685,28 @@ function FMViewMaker() {
           display.removeChild(display.firstChild);
         }
         for (var key in data) {
+          let b = document.createElement('table');
+          display.appendChild(b);
           for (var keyx in data[key]) { // for loop in for loop, one for list of objects, 2nd for objects in that list
-            let a = document.createElement('p');
-            a.innerText = data[key][keyx] + ' ' + keyx;
-            display.appendChild(a);
+            if (keyx == 'userName') {
+              y = document.createElement('caption');
+              y.innerText = data[key][keyx];
+              b.appendChild(y);
+            }
+            let a = document.createElement('tr');
+            let column = document.createElement('td');
+            let row = document.createElement('td');
+            column.innerText = keyx.toUpperCase();
+            row.innerText = data[key][keyx];
+            b.appendChild(a);
+            b.appendChild(column);
+            b.appendChild(row);
           }
         }
-        console.log(data);
       })
       .catch((err) => console.log(err));
     main.innerText =
-      `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
+      `In the display port is all users' information at this company, ${clientInfo.firstName}.`;
   });
 
   // Get all reimbursements
@@ -582,16 +722,22 @@ function FMViewMaker() {
     main.appendChild(inputLabel);
     main.appendChild(input);
 
-    var typing = document.createElement("input");
+    var typing = document.createElement("select");
     typing.setAttribute("id", "typing");
     // If 0, author, 1 is status
-    // SHOULD MAKE A DROP MENU
-    typing.setAttribute("type", "number");
+    var userSelect = document.createElement('option');
+    userSelect.setAttribute('value', 0);
+    userSelect.innerText = 'By Author';
+    var statusSelect = document.createElement('option');
+    statusSelect.setAttribute('value', 1);
+    statusSelect.innerText = 'By Reim Status'
     var typingLabel = document.createElement('label');
     typingLabel.setAttribute('for', 'typing');
-    typingLabel.innerText = '0 for user, 1 for status';
+    typingLabel.innerText = 'Organize By Author or Status';
     main.appendChild(typingLabel);
     main.appendChild(typing);
+    typing.appendChild(userSelect);
+    typing.appendChild(statusSelect);
 
     var submitter = document.createElement("button");
     submitter.setAttribute("id", "submitter");
@@ -602,6 +748,10 @@ function FMViewMaker() {
     submitter.addEventListener("click", function () {
       while (display.firstChild) {
         display.removeChild(display.firstChild);
+      }
+      if (document.getElementById('typing')['value'] == 1 && document.getElementById('input')['value'] > 3) {
+        display.innerText = 'Error: Invalid Status #';
+        return;
       }
       var url = 'http://localhost:3000/reimbursements/';
       if (document.getElementById('typing')['value'] == 0) { // if you want by user ID
@@ -627,19 +777,41 @@ function FMViewMaker() {
           while (display.firstChild) {
             display.removeChild(display.firstChild);
           }
-          for (var key in data) { // for loop of objects
-            for (var keyx in data[key]) { // for loop to display objects in objects
-              let a = document.createElement('p');
-              a.innerText = data[key][keyx] + ' ' + keyx;
-              display.appendChild(a);
+          for (var key in data) {
+            let b = document.createElement('table');
+            display.appendChild(b);
+            for (var keyx in data[key]) { // for loop in for loop, one for list of objects, 2nd for objects in that list
+              if (keyx == 'datesubmitted') {
+                y = document.createElement('caption');
+                y.innerText = data[key][keyx].substring(0, 9);
+                b.appendChild(y);
+              }
+              let a = document.createElement('tr');
+              let column = document.createElement('td');
+              let row = document.createElement('td');
+              column.innerText = keyx.toUpperCase();
+              row.innerText = data[key][keyx];
+              if (keyx == 'datesubmitted') {
+                row.innerText = data[key][keyx].substring(0, 9);
+              } else if (keyx == 'dateresolved') {
+                row.innerText = data[key][keyx].substring(0, 9);
+              } else {
+                row.innerText = data[key][keyx];
+              }
+              b.appendChild(a);
+              b.appendChild(column);
+              b.appendChild(row);
             }
           }
-          console.log(data);
+          if (!display.firstChild) {
+            main.innerText = 'There is no user with that ID.'
+          } else {
+            main.innerText =
+              `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
+          }
         })
         .catch((err) => console.log(err));
       // #endregion
-      main.innerText =
-        `In the display port is the target's information at this company, ${clientInfo.firstName}.`;
     });
   });
 }
@@ -652,6 +824,7 @@ function adminViewMaker() {
   }
   // #endregion
   // #region making admin view
+  document.getElementById('title').innerText = 'Admin View';
   var user = document.createElement("button");
   user.setAttribute("id", "UserInfo");
   user.innerText = "Your Information";
@@ -764,6 +937,7 @@ function adminViewMaker() {
       if (lastname != '') { payload.lastName = lastname; }
       let email = document.getElementById('emailAdd')['value'];
       if (email != '') { payload.email = email; }
+      console.log(payload);
       // #endregion
       // #region fetch request and results
       fetch('http://localhost:3000/users', {
@@ -784,10 +958,25 @@ function adminViewMaker() {
           while (display.firstChild) {
             display.removeChild(display.firstChild);
           }
+          let b = document.createElement('table');
+          display.appendChild(b);
+          /*for (var key in data) {
+            console.log(key);
+          }*/ // can use this code to view keys in ANY object if you don't already know em
           for (var key in data) {
-            let a = document.createElement('p');
-            a.innerText = data[key] + ' ' + key;
-            display.appendChild(a);
+            if (key == 'userName') {
+              y = document.createElement('caption');
+              y.innerText = data[key];
+              b.appendChild(y);
+            }
+            let a = document.createElement('tr');
+            let column = document.createElement('td');
+            let row = document.createElement('td');
+            column.innerText = key.toUpperCase();
+            row.innerText = data[key];
+            b.appendChild(a);
+            b.appendChild(column);
+            b.appendChild(row);
           }
         })
         .catch((err) => console.log(err));

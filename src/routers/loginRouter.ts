@@ -14,7 +14,7 @@ const { sha256 } = require('crypto-hash'); /* Turn passwords into human unreadab
 is actually saved or used in its 'normal' form */
 const loginRouter = express.Router(); // This creates a new instance of express unique to the login path
 
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); // import json web token usage
 
 /**
  * The key to the login so to say. The Logger object will store the user's password, username, role, and
@@ -57,15 +57,15 @@ loginRouter.post("", async (request: Request, response: Response) => {
         // request.body.propertyName, this clues us on how the request is structured. Request -> body -> property names
         if (valid) {
             // if true...
-
             Logger.Username = request.body.UserName; /* set Logger.Username to what the user put it,
             we know it's correct */
-            Logger.Password = ''; // as above
+            Logger.Password = '';
             const user: User = await usersService.getUserId(Logger.UserID); // Run the get id command using Logger's Id
             jwt.sign({ user: user }, 'secretkey', { expiresIn: '1h' }, (err, token) => {
                 response.json({
                     token: token
                 });
+                Logger.UserID = 0; Logger.Role = 0; Logger.Username = ''; // reset server side logger variable
             });
             // response.json(user); // response with the user's information
 
@@ -77,6 +77,7 @@ loginRouter.post("", async (request: Request, response: Response) => {
     }
 });
 
+// a more private route for client page to call so it can know who the user is and render according
 loginRouter.get('', verifyToken, async (req: any, response: Response) => {
     jwt.verify(req.token, 'secretkey', async (err, authData) => {
         if (err) {
@@ -89,15 +90,15 @@ loginRouter.get('', verifyToken, async (req: any, response: Response) => {
     });
 });
 
-// format of token
-// Authorization: Bearer <token>
+// format of token is ~ Authorization: Bearer <token>
+// verify function to check and read token if user is appropriate
 export function verifyToken(req, res, next) {
     const bearerHeader = req.headers[`authorization`];
     if (typeof bearerHeader !== 'undefined') {
         // split at the space, between bearer and token
         const bearer = bearerHeader.split(' ');
-        const bearerToken = bearer[1];
-        req.token = bearerToken;
+        const bearerToken = bearer[1]; // token will be at 2nd array slot
+        req.token = bearerToken; // establish a new part of the request object, token
         next();
     } else {
         res.sendStatus(403);
